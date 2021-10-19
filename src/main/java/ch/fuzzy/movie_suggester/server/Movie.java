@@ -1,8 +1,5 @@
 package ch.fuzzy.movie_suggester.server;
 
-import com.vaadin.flow.internal.StringUtil;
-import org.springframework.util.StringUtils;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,6 +57,6 @@ public class Movie {
 	public static String showGenres(Movie movie) {
 		StringBuilder sb = new StringBuilder();
 		movie.genres.stream().forEach(g -> sb.append(g.getName()).append(", "));
-		return sb.toString().substring(0, sb.length()-2);
+		return sb.length() > 0 ? sb.substring(0, sb.length()-2): "";
 	}
 }

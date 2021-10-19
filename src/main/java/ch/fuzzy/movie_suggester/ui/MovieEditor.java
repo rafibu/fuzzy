@@ -1,5 +1,8 @@
-package ch.fuzzy.movie_suggester.server;
+package ch.fuzzy.movie_suggester.ui;
 
+import ch.fuzzy.movie_suggester.server.Genre;
+import ch.fuzzy.movie_suggester.server.Movie;
+import ch.fuzzy.movie_suggester.server.MovieRepository;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
@@ -13,14 +16,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * A simple example to introduce building forms. As your real application is probably much
- * more complicated than this example, you could re-use this form in multiple places. This
- * example component is only used in MainView.
- * <p>
- * In a real world application you'll most likely using a common super class for all your
- * forms - less code, better UX.
- */
 @SpringComponent
 @UIScope
 public class MovieEditor extends VerticalLayout implements KeyNotifier {
@@ -53,7 +48,14 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
 
         genreComboBox.setItems(Genre.GenreType.values());
         genreComboBox.setLabel("Genre");
-        genreComboBox.addCustomValueSetListener(comboBoxCustomValueSetEvent -> movie.addGenre(genreComboBox.getValue()));
+        genreComboBox.addValueChangeListener(event -> {
+            Genre.GenreType genre = genreComboBox.getValue();
+            if(movie.getGenres().stream().anyMatch(g -> g.getType() == genre)){
+                movie.removeGenre(genre);
+            } else {
+                movie.addGenre(genre);
+            }
+        });
 
         add(title, description, genreComboBox, actions);
 

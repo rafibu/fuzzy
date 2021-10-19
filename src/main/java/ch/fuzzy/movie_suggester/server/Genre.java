@@ -16,8 +16,9 @@ public class Genre {
     private Long id;
 
     @ManyToMany(mappedBy = "genres")
-    private Set<Movie> movies = new HashSet<>();
+    private final Set<Movie> movies = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
     private final GenreType type;
 
     public Genre(GenreType type){

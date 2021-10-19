@@ -1,6 +1,7 @@
 package ch.fuzzy.movie_suggester;
 
 import ch.fuzzy.movie_suggester.server.Movie;
+import ch.fuzzy.movie_suggester.server.MovieFinder;
 import ch.fuzzy.movie_suggester.server.MovieRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class MovieSuggesterApplication {
 
     @Bean
     public CommandLineRunner loadData(MovieRepository repository) {
+        MovieFinder.initialize(repository);
         return (args) -> {
             // fetch all movies
             log.info("Movies found with findAll():");
