@@ -1,0 +1,50 @@
+
+[part="value"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+[part="toggle-button"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+[part="input-field"] {
+    color: red;
+    background-color:var(--bkg-color);
+    border-color: white;
+    border-style: solid;
+    border-width: 1px;
+}
+[part="content"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+[part="content"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+[part="increase-button"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+[part="decrease-button"] {
+    color: red;
+    background-color:var(--bkg-color);
+}
+
+vaadin-text-field{
+    color: red;
+    background-color:var(--bkg-color);
+}
+
+:host(vaadin-text-area) [part="label"]{
+    color: red;
+}
+:host(vaadin-text-area[hover]) [part="label"]{
+    color: red;
+    background: var(--lumo-primary-color-50pct);
+}
+
+vaadin-text-area{
+    color: red;
+    background-color:var(--bkg-color);
+}

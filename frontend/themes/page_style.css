@@ -1,0 +1,81 @@
+html{
+    --lumo-base-color: #000;
+    --lumo-tint-5pct: hsla(0, 0%, 100%, 0.3);
+    --lumo-tint-10pct: hsla(0, 0%, 100%, 0.37);
+    --lumo-tint-20pct: hsla(0, 0%, 100%, 0.44);
+    --lumo-tint-30pct: hsla(0, 0%, 100%, 0.5);
+    --lumo-tint-40pct: hsla(0, 0%, 100%, 0.57);
+    --lumo-tint-50pct: hsla(0, 0%, 100%, 0.64);
+    --lumo-tint-60pct: hsla(0, 0%, 100%, 0.7);
+    --lumo-tint-70pct: hsla(0, 0%, 100%, 0.77);
+    --lumo-tint-80pct: hsla(0, 0%, 100%, 0.84);
+    --lumo-tint-90pct: hsla(0, 0%, 100%, 0.9);
+    --lumo-tint: #FFF;
+    --lumo-shade-5pct: hsla(0, 61%, 25%, 0.05);
+    --lumo-shade-10pct: hsla(0, 57%, 24%, 0.1);
+    --lumo-shade-20pct: hsla(0, 53%, 23%, 0.16);
+    --lumo-shade-30pct: hsla(0, 50%, 22%, 0.26);
+    --lumo-shade-40pct: hsla(0, 48%, 21%, 0.38);
+    --lumo-shade-50pct: hsla(0, 45%, 20%, 0.5);
+    --lumo-shade-60pct: hsla(0, 42%, 19%, 0.61);
+    --lumo-shade-70pct: hsla(0, 41%, 18%, 0.72);
+    --lumo-shade-80pct: hsla(0, 40%, 17%, 0.83);
+    --lumo-shade-90pct: hsla(0, 41%, 16%, 0.94);
+    --lumo-shade: hsl(0, 35%, 15%);
+    --lumo-contrast-5pct: var(--lumo-shade-5pct);
+    --lumo-contrast-10pct: var(--lumo-shade-10pct);
+    --lumo-contrast-20pct: var(--lumo-shade-20pct);
+    --lumo-contrast-30pct: var(--lumo-shade-30pct);
+    --lumo-contrast-40pct: var(--lumo-shade-40pct);
+    --lumo-contrast-50pct: var(--lumo-shade-50pct);
+    --lumo-contrast-60pct: var(--lumo-shade-60pct);
+    --lumo-contrast-70pct: var(--lumo-shade-70pct);
+    --lumo-contrast-80pct: var(--lumo-shade-80pct);
+    --lumo-contrast-90pct: var(--lumo-shade-90pct);
+    --lumo-contrast: var(--lumo-shade);
+    --lumo-header-text-color: var(--lumo-contrast);
+    --lumo-body-text-color: var(--lumo-contrast-90pct);
+    --lumo-secondary-text-color: var(--lumo-contrast-70pct);
+    --lumo-tertiary-text-color: var(--lumo-contrast-50pct);
+    --lumo-disabled-text-color: var(--lumo-contrast-30pct);
+    --lumo-primary-color: hsl(0, 90%, 52%);
+    --lumo-primary-color-50pct: hsl(0, 61%, 60%);
+    --lumo-primary-color-10pct: hsl(0, 32%, 24%);
+    --lumo-primary-text-color: var(--lumo-primary-color);
+    --lumo-primary-contrast-color: #FFF;
+
+    vertical-align: bottom;
+}
+
+body {
+    --text-color: white;
+    --bkg-color: #121212;
+}
+
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: var(--bkg-color);
+    color: var(--text-color);
+}
+h1,
+p {
+    color: var(--text-color);
+}
+
+vaadin-button{
+    color: white;
+    background: red;
+}
+
+vaadin-button[disabled]{
+    color: black;
+    background: gray;
+}
+
+vaadin-button:hover{
+    color: white;
+    background: var(--lumo-primary-color-50pct);
+}

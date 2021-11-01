@@ -1,12 +1,14 @@
 package ch.fuzzy.movie_suggester.server;
 
+import ch.fuzzy.movie_suggester.util.MathUtil;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 
 /**
- * Class as indirection to Enum as Enums cannot be persisted for Many to many mapping
+ * Genre and how much a movie overlaps with it
  */
 @Entity
 public class Genre {
@@ -15,17 +17,22 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(mappedBy = "genres")
-    private final Set<Movie> movies = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name="movie_id", nullable=false)
+    private Movie movie;
 
     @Enumerated(EnumType.STRING)
     private final GenreType type;
 
-    public Genre(GenreType type){
+    private Integer fit;
+
+    public Genre(Movie movie, GenreType type){
+        this.movie = movie;
         this.type = type;
+        this.fit = 80; //NOTE: rbu 31.10.2021, fit assumed high in the beginning, can still be set lower later
     }
 
-    public Genre() {type = null;}
+    protected Genre() {type = null; movie = null;}
 
     public String getName() {return type.name;}
 
@@ -33,7 +40,10 @@ public class Genre {
 
     public GenreType getType() { return type; }
 
-    public enum GenreType{
+    public int getFit() {return fit;}
+    public void setFit(int fit) {assert MathUtil.isBetween(fit, 0, 100); this.fit = fit;}
+
+    public enum GenreType implements IFilterElement{
         ROMANCE("Romance"),
         HORROR("Horror"),
         THRILLER("Thriller"),
@@ -44,6 +54,8 @@ public class Genre {
         GenreType(String name){
             this.name = name;
         }
+
+        @Override public String getName() {return name;}
     }
 }
 

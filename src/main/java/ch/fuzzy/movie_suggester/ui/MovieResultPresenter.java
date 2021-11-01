@@ -1,29 +1,31 @@
 package ch.fuzzy.movie_suggester.ui;
 
-import ch.fuzzy.movie_suggester.server.Genre;
 import ch.fuzzy.movie_suggester.server.Movie;
 import ch.fuzzy.movie_suggester.server.MovieFilter;
 import ch.fuzzy.movie_suggester.server.MovieFinder;
+import ch.fuzzy.movie_suggester.server.MovieResult;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.router.Route;
 
 import java.util.List;
-import java.util.Map;
 
 @Route("movie_results")
 public class MovieResultPresenter extends VerticalLayout{
 
+    private static MovieFilter lastFilter;
+
     public MovieResultPresenter(){
         MovieFilter filter = ComponentUtil.getData(UI.getCurrent(), MovieFilter.class);
-        List<Movie> movies = MovieFinder.get().findMovies(filter);
-        final Grid<Movie> grid = new Grid<>(Movie.class);
+        if(filter != null) lastFilter = filter;
+        List<MovieResult> movies = MovieFinder.get().findMovies(lastFilter);
+        final Grid<MovieResult> grid = new Grid<>(MovieResult.class);
         grid.setHeight("300px");
-        grid.setColumns("id", "title", "description", "genres");
-        grid.getColumnByKey("id").setWidth("50px").setFlexGrow(0);
-        grid.addColumn(Movie::showGenres);
+        grid.setColumns("movie.id", "movie.title", "movie.description", "movie.genres", "movie.platforms", "movie.languages", "fit");
+        grid.getColumnByKey("movie.id").setWidth("50px").setFlexGrow(0);
         grid.setItems(movies);
         add(grid);
     }

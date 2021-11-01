@@ -1,16 +1,14 @@
 package ch.fuzzy.movie_suggester.ui;
 
-import ch.fuzzy.movie_suggester.server.Genre;
+import ch.fuzzy.movie_suggester.server.Language;
 import ch.fuzzy.movie_suggester.server.Movie;
 import ch.fuzzy.movie_suggester.server.MovieRepository;
+import ch.fuzzy.movie_suggester.server.Platform;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -18,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringComponent
 @UIScope
-public class MovieEditor extends VerticalLayout implements KeyNotifier {
+public class MovieEditor extends VLayout implements KeyNotifier {
 
     private final MovieRepository repository;
 
@@ -27,17 +25,13 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
      */
     private Movie movie;
 
-    /* Fields to edit properties in Movie entity */
-    TextField title = new TextField("Title");
-    TextField description = new TextField("Description");
+    private HLayout panel;
 
     /* Action buttons */
     Button save = new Button("Save", VaadinIcon.CHECK.create());
     Button cancel = new Button("Cancel");
     Button delete = new Button("Delete", VaadinIcon.TRASH.create());
     HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
-
-    ComboBox<Genre.GenreType> genreComboBox = new ComboBox<>(); //TODO: Change to MultiSelect
 
     Binder<Movie> binder = new Binder<>(Movie.class);
     private ChangeHandler changeHandler;
@@ -46,22 +40,7 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
     public MovieEditor(MovieRepository repository) {
         this.repository = repository;
 
-        genreComboBox.setItems(Genre.GenreType.values());
-        genreComboBox.setLabel("Genre");
-        genreComboBox.addValueChangeListener(event -> {
-            Genre.GenreType genre = genreComboBox.getValue();
-            if(movie.getGenres().stream().anyMatch(g -> g.getType() == genre)){
-                movie.removeGenre(genre);
-            } else {
-                movie.addGenre(genre);
-            }
-        });
-
-        add(title, description, genreComboBox, actions);
-
-        // bind using naming convention
-        binder.bindInstanceFields(this);
-
+        add(panel = new HLayout());
         // Configure and style components
         setSpacing(true);
 
@@ -75,6 +54,30 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
         delete.addClickListener(e -> delete());
         cancel.addClickListener(e -> editMovie(movie));
         setVisible(false);
+    }
+
+    private HLayout renderMovie() {
+        HLayout panel = new HLayout();
+
+        VLayout firstRow = new VLayout();
+        firstRow.add(actions);
+        firstRow.addTextfield("Title", movie::setTitle, movie.getTitle());
+        firstRow.addTextArea("Description", movie::setDescription, movie.getDescription());
+
+        VLayout secondRow = new VLayout();
+        secondRow.addMultiSelect(movie::setLanguages, movie.getLanguages(), Language.values());
+        secondRow.addMultiSelect(movie::setPlatforms, movie.getPlatforms(), Platform.values());
+
+        VLayout thirdRow = new VLayout();
+        thirdRow.addIntegerField("Low Concentration Fit", movie::setLowConcentrationFit, movie.getLowConcentrationFit(), true, 0, 100, 1);
+        thirdRow.addIntegerField("Moderate Concentration Fit", movie::setModerateConcentrationFit, movie.getModerateConcentrationFit(), true, 0, 100, 1);
+        thirdRow.addIntegerField("Hard Concentration Fit", movie::setHardConcentrationFit, movie.getHardConcentrationFit(), true, 0, 100, 1);
+
+        //TODO: add Keywords
+        //TODO add Genres
+
+        panel.add(firstRow, secondRow, thirdRow);
+        return panel;
     }
 
     void delete() {
@@ -104,6 +107,10 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
         else {
             this.movie = movie;
         }
+        panel.removeAll();
+        remove(panel);
+        panel = renderMovie();
+        add(panel);
         cancel.setVisible(persisted);
 
         // Bind Movie properties to similarly named fields
@@ -112,9 +119,6 @@ public class MovieEditor extends VerticalLayout implements KeyNotifier {
         binder.setBean(this.movie);
 
         setVisible(true);
-
-        // Focus first name initially
-        title.focus();
     }
 
     public void setChangeHandler(ChangeHandler h) {
