@@ -69,7 +69,7 @@ public class MovieFinder {
 
     private int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
         switch (membership){
-            case FEW: return numberWatchers <= 3 ? 100 : numberWatchers < 7 ? (100*(7-numberWatchers))/4 : 0;
+            case FEW: return numberWatchers <= 2 ? 100 : numberWatchers < 4 ? (100*(4-numberWatchers))/2 : 0;
             case MEDIUM:
                 if(numberWatchers <= 2 || numberWatchers >= 8) return 0;
                 if(numberWatchers < 4) return (100*(numberWatchers - 2))/2;
@@ -133,7 +133,7 @@ public class MovieFinder {
         switch (concentration){
             case LOW: {
                 if (relationship == Relationship.ROMANTIC && numberPeopleMap.get(NumberPeople.MANY) > 0) {
-                    return numberPeopleMap.get(NumberPeople.MEDIUM) == 0 ? 25 : 50;
+                    return numberPeopleMap.get(NumberPeople.MEDIUM) == 0 ? 100 : 25;
                 }
                 if (ObjUtil.isContained(relationship, Relationship.FAMILY, Relationship.PLATONIC) && numberPeopleMap.get(NumberPeople.MANY) > 0) {
                     return numberPeopleMap.get(NumberPeople.MEDIUM) == 0 ? 100 : 75;
