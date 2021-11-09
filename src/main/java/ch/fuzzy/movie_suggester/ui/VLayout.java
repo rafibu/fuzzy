@@ -24,6 +24,15 @@ import java.util.function.Consumer;
 @CssImport("./themes/page_style.css")
 @CssImport(value = "./themes/filter_elements.css", themeFor = "vaadin-*")
 public class VLayout extends VerticalLayout implements ILayout{
+    private final ILayout parent;
+
+    public VLayout(ILayout parent){
+        this.parent = parent;
+    }
+
+    //TODO: rbu 04.11.2021, Maybe try to find another way
+    public VLayout() {parent = null;}
+
 
     protected Text addText(String text){
         return LayoutUtil.addText(text, this);
@@ -160,6 +169,6 @@ public class VLayout extends VerticalLayout implements ILayout{
         return LayoutUtil.addMultiSelect(setter, choices, this);
     }
 
-    public void fireStateChanged(){/* define on subclasses */}
+    public void fireStateChanged(){if(parent != null) parent.fireStateChanged();}
     public void add(Component... components){ super.add(components); }
 }

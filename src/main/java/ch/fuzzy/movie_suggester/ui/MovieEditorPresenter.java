@@ -5,21 +5,20 @@ import ch.fuzzy.movie_suggester.server.MovieRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.util.StringUtils;
 
 @Route("movie_editor")
-public class MovieEditorPresenter extends VerticalLayout {
+public class MovieEditorPresenter extends VLayout {
 
     private final Grid<Movie> grid;
     private final MovieRepository repo;
 
     public MovieEditorPresenter(MovieRepository repo) {
         this.repo = repo;
-        MovieEditor editor = new MovieEditor(repo);
+        MovieEditorPanel editor = new MovieEditorPanel(repo);
         grid = new Grid<>(Movie.class);
 
         final TextField filter =new TextField();

@@ -13,7 +13,7 @@ html{
     --lumo-tint: #FFF;
     --lumo-shade-5pct: hsla(0, 61%, 25%, 0.05);
     --lumo-shade-10pct: hsla(0, 57%, 24%, 0.1);
-    --lumo-shade-20pct: hsla(0, 53%, 23%, 0.16);
+    --lumo-shade-20pct: hsla(0, 53%, 23%, 0.84);
     --lumo-shade-30pct: hsla(0, 50%, 22%, 0.26);
     --lumo-shade-40pct: hsla(0, 48%, 21%, 0.38);
     --lumo-shade-50pct: hsla(0, 45%, 20%, 0.5);
@@ -34,7 +34,7 @@ html{
     --lumo-contrast-90pct: var(--lumo-shade-90pct);
     --lumo-contrast: var(--lumo-shade);
     --lumo-header-text-color: var(--lumo-contrast);
-    --lumo-body-text-color: var(--lumo-contrast-90pct);
+    --lumo-body-text-color: var(--lumo-primary-color);
     --lumo-secondary-text-color: var(--lumo-contrast-70pct);
     --lumo-tertiary-text-color: var(--lumo-contrast-50pct);
     --lumo-disabled-text-color: var(--lumo-contrast-30pct);

@@ -26,7 +26,6 @@ import java.util.function.Consumer;
  * Combines all implementations of inputfields for the Vertical and Horizontal Layout
  * For more Details:
  * @see <a href="https://vaadin.com/components">Components</a>
- * TODO: rbu 28.10.2021, For each add one where a default can be defined (might be useful for initial state)
  */
 public class LayoutUtil {
 
@@ -55,8 +54,8 @@ public class LayoutUtil {
     }
     public static <T extends IFilterElement> ComboBox<T> addCombobox(String title, Consumer<T> setter, T value, T[] choices, ILayout layout){
         final ComboBox<T> comboBox = new ComboBox<>();
-        if(value != null) comboBox.setValue(value);
         comboBox.setItems(choices);
+        if(value != null) comboBox.setValue(value);
         comboBox.setLabel(title);
         comboBox.addValueChangeListener(event -> {
             setter.accept(comboBox.getValue());
@@ -86,12 +85,13 @@ public class LayoutUtil {
         select.setLabel(title);
 
         select.setItems(choices);
+        select.setValue(value);
         select.setItemLabelGenerator(T::getName);
         select.addValueChangeListener(event -> {
             setter.accept(select.getValue());
             layout.fireStateChanged();
         });
-//        if(includeNull) { FIXME
+//        if(includeNull) { FIXME:
 //            select.setEmptySelectionAllowed(true);
 //            select.setEmptySelectionCaption("");
 //        }

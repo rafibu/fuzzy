@@ -29,13 +29,7 @@ public class MovieFilterPresenter extends VLayout {
     }
 
     private HorizontalLayout initialTextFilter() {
-        HLayout layout = new HLayout(){
-            @Override
-            public void fireStateChanged() {
-                super.fireStateChanged();
-                MovieFilterPresenter.this.fireStateChanged();
-            }
-        };
+        HLayout layout = new HLayout(this);
         layout.addText("We are ");
         layout.addSelect("", filter::setRelationship, Relationship.values());
         layout.addText(" of ");

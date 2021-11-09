@@ -16,5 +16,5 @@ public class MovieResult implements Comparable<MovieResult>{
 
     public int getFit() {return fit;}
 
-    @Override public int compareTo(MovieResult o) {return Integer.compare(getFit(), o.getFit());}
+    @Override public int compareTo(MovieResult o) {return (-1)*Integer.compare(getFit(), o.getFit());}
 }

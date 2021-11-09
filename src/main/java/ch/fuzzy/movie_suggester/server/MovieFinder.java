@@ -27,9 +27,16 @@ public class MovieFinder {
 
     public List<MovieResult> findMovies(MovieFilter filter){
         if(filter == null) return new ArrayList<>(); //NOTE: rbu 29.10.2021, should only be the case if we go directly to the corresponding URL
-        List<Movie> foundByGenre = repo.findByLanguagesContaining(filter.getLanguage());
-        List<Movie> foundByPlatform = foundByGenre.stream().filter(m -> m.getPlatforms().stream().anyMatch(p -> filter.getPlatforms().contains(p))).collect(Collectors.toList()); //TODO: rbu 01.11.2021, add to Query for SQL
-        return foundByPlatform.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
+        List<Movie> movies;
+        if(filter.getLanguage() != null) {
+            movies = repo.findByLanguagesContaining(filter.getLanguage());
+        } else {
+            movies = repo.findAll();
+        }
+        if(filter.getPlatforms().size() > 0) {
+            movies = movies.stream().filter(m -> m.getPlatforms().stream().anyMatch(p -> filter.getPlatforms().contains(p))).collect(Collectors.toList()); //TODO: rbu 01.11.2021, add to Query for SQL
+        }
+        return movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
     }
 
     /**

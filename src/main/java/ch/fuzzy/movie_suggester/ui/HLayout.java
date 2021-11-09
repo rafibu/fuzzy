@@ -25,6 +25,12 @@ import java.util.function.Consumer;
 @CssImport(value = "./themes/filter_elements.css", themeFor = "vaadin-*")
 public class HLayout extends HorizontalLayout implements ILayout{
 
+    private final ILayout parent;
+
+    public HLayout(ILayout parent){
+        this.parent = parent;
+    }
+
     protected Text addText(String text){
         return LayoutUtil.addText(text, this);
     }
@@ -160,6 +166,6 @@ public class HLayout extends HorizontalLayout implements ILayout{
         return LayoutUtil.addMultiSelect(setter, choices, this);
     }
 
-    public void fireStateChanged(){/* define on subclasses */}
+    public void fireStateChanged(){if(parent != null) parent.fireStateChanged();}
     public void add(Component... components){ super.add(components); }
 }

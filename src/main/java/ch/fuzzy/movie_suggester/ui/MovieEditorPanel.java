@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringComponent
 @UIScope
-public class MovieEditor extends VLayout implements KeyNotifier {
+public class MovieEditorPanel extends VLayout implements KeyNotifier {
 
     private final MovieRepository repository;
 
@@ -37,10 +37,11 @@ public class MovieEditor extends VLayout implements KeyNotifier {
     private ChangeHandler changeHandler;
 
     @Autowired
-    public MovieEditor(MovieRepository repository) {
+    public MovieEditorPanel(MovieRepository repository) {
+        super();
         this.repository = repository;
 
-        add(panel = new HLayout());
+        add(panel = new HLayout(this));
         // Configure and style components
         setSpacing(true);
 
@@ -57,26 +58,30 @@ public class MovieEditor extends VLayout implements KeyNotifier {
     }
 
     private HLayout renderMovie() {
-        HLayout panel = new HLayout();
+        HLayout panel = new HLayout(this);
 
-        VLayout firstRow = new VLayout();
+        VLayout firstRow = new VLayout(this);
         firstRow.add(actions);
         firstRow.addTextfield("Title", movie::setTitle, movie.getTitle());
         firstRow.addTextArea("Description", movie::setDescription, movie.getDescription());
 
-        VLayout secondRow = new VLayout();
+        VLayout secondRow = new VLayout(this);
         secondRow.addMultiSelect(movie::setLanguages, movie.getLanguages(), Language.values());
         secondRow.addMultiSelect(movie::setPlatforms, movie.getPlatforms(), Platform.values());
 
-        VLayout thirdRow = new VLayout();
+        VLayout thirdRow = new VLayout(this);
         thirdRow.addIntegerField("Low Concentration Fit", movie::setLowConcentrationFit, movie.getLowConcentrationFit(), true, 0, 100, 1);
         thirdRow.addIntegerField("Moderate Concentration Fit", movie::setModerateConcentrationFit, movie.getModerateConcentrationFit(), true, 0, 100, 1);
         thirdRow.addIntegerField("Hard Concentration Fit", movie::setHardConcentrationFit, movie.getHardConcentrationFit(), true, 0, 100, 1);
 
-        //TODO: add Keywords
-        //TODO add Genres
+        VLayout fourthRow = new VLayout(this);
+        fourthRow.add(new MovieGenrePanel(this));
 
-        panel.add(firstRow, secondRow, thirdRow);
+        VLayout fifthRow = new VLayout(this);
+        fifthRow.add(new MovieKeywordPanel(this));
+
+
+        panel.add(firstRow, secondRow, thirdRow, fourthRow, fifthRow);
         return panel;
     }
 
@@ -127,4 +132,5 @@ public class MovieEditor extends VLayout implements KeyNotifier {
         changeHandler = h;
     }
 
+    public Movie getMovie() {return movie;}
 }

@@ -15,7 +15,7 @@ public class Keyword {
     private Movie movie;
 
     @Enumerated(EnumType.STRING)
-    private final KeywordValue keyword;
+    private KeywordValue keyword;
     private int fit;
 
     public Keyword(Movie movie, KeywordValue keyword){
@@ -34,6 +34,9 @@ public class Keyword {
 
     public int getFit() {return fit;}
     public void setFit(int fit) {this.fit = fit;}
+
+    public KeywordValue getKeyword() {return keyword;}
+    public void setKeyword(KeywordValue keyword) {this.keyword = keyword;}
 
     public enum KeywordValue implements IFilterElement{
         SEX("Sex"),

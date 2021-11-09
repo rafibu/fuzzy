@@ -1,9 +1,12 @@
 package ch.fuzzy.movie_suggester.server;
 
+import ch.fuzzy.movie_suggester.util.ObjUtil;
+
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class Movie {
@@ -41,10 +44,10 @@ public class Movie {
 	@Column(name = "HARD_CONCENTRATION_FIT")
 	private Integer hardConcentrationFit;
 
-	@OneToMany(mappedBy = "movie",fetch = FetchType.EAGER)
+	@OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, mappedBy = "movie",fetch = FetchType.EAGER)
 	private Set<Keyword> keywords = new HashSet<>();
 
-	@OneToMany(mappedBy = "movie",fetch = FetchType.EAGER)
+	@OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, mappedBy = "movie",fetch = FetchType.EAGER)
 	private Set<Genre> genres = new HashSet<>();
 
 	protected Movie() {}
@@ -71,6 +74,8 @@ public class Movie {
 	public void setLanguages(Set<Language> languages) {this.languages = languages;}
 
 	public Set<Keyword> getKeywords() {return keywords;}
+	public Keyword createKeyword() { Keyword k = new Keyword(this, null); keywords.add(k); return k;}
+	public void removeKeyword(Keyword k) { keywords.remove(k);}
 
 	public Integer getLowConcentrationFit() {return lowConcentrationFit;}
 	public void setLowConcentrationFit(Integer lowConcentrationFit) {
@@ -95,6 +100,8 @@ public class Movie {
 
 	public Set<Genre> getGenres() {return genres;}
 	public void setGenres(Set<Genre> genres) {this.genres = genres;}
+	public Genre createGenre() { Genre g = new Genre(this, null); genres.add(g); return g; }
+	public void removeGenre(Genre genre){ genres.remove(genre); }
 
 	public void setKeywords(Set<Keyword> keywords) {this.keywords = keywords;}
 
@@ -122,5 +129,13 @@ public class Movie {
 			case HARD: return getHardConcentrationFit() != null ? getHardConcentrationFit() : 0;
 			default: throw new IllegalArgumentException("No Fit found for Concentration " + concentration);
 		}
+	}
+
+	public boolean hasGenre(Genre.GenreType g) {
+		return ObjUtil.isContained(g, getGenres().stream().map(Genre::getType).toArray(Genre.GenreType[]::new));
+	}
+
+	public boolean hasKeyword(Keyword.KeywordValue k) {
+		return ObjUtil.isContained(k, getKeywords().stream().map(Keyword::getKeyword).toArray(Keyword.KeywordValue[]::new));
 	}
 }

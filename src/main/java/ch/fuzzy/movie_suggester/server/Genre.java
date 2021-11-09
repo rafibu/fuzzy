@@ -22,31 +22,33 @@ public class Genre {
     private Movie movie;
 
     @Enumerated(EnumType.STRING)
-    private final GenreType type;
+    private GenreType type;
 
     private Integer fit;
 
     public Genre(Movie movie, GenreType type){
         this.movie = movie;
         this.type = type;
-        this.fit = 80; //NOTE: rbu 31.10.2021, fit assumed high in the beginning, can still be set lower later
+        this.fit = 80; //fit assumed high in the beginning, can still be set lower later
     }
 
-    protected Genre() {type = null; movie = null;}
+    protected Genre() {}
 
-    public String getName() {return type.name;}
+    public String getName() {return type != null ? type.getName() : "NULL";}
 
-    @Override public String toString() {return type.name;}
+    @Override public String toString() {return (type != null ? type.name : "[null]") +" fit: " +  getFit();}
 
     public GenreType getType() { return type; }
+    public void setType(GenreType type) {this.type = type;}
 
-    public int getFit() {return fit;}
+    public int getFit() {return fit == null ? 0 : fit;}
     public void setFit(int fit) {assert MathUtil.isBetween(fit, 0, 100); this.fit = fit;}
 
     public enum GenreType implements IFilterElement{
         ROMANCE("Romance"),
         HORROR("Horror"),
         THRILLER("Thriller"),
+        FANTASY("Fantasy"),
         COMEDY("Comedy");
 
         private final String name;
