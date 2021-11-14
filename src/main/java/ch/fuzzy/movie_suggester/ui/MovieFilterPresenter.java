@@ -16,7 +16,7 @@ public class MovieFilterPresenter extends VLayout {
         filter = new MovieFilter();
         add(initialTextFilter());
         addText("------------------additional Filter------------------");
-        addTextArea("Positive Keywords", filter::setPositiveKeywords);
+//        addTextArea("Positive Keywords", filter::setPositiveKeywords);
 
         searchBtn = new Button("Search");
         searchBtn.addClickListener(e -> {

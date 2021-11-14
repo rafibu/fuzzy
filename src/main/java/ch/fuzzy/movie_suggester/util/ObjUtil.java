@@ -53,6 +53,7 @@ public class ObjUtil {
         return a.equals(b);
     }
 
+    //FIXME: rbu 14.11.2021, for Elements where multiple values are present they might slip through
     public static <T> boolean sameElements(T[] array1, T[] array2) {
         if(array1.length != array2.length){ return false;}
         for(T element: array1){
@@ -75,11 +76,14 @@ public class ObjUtil {
         }
     }
 
+    public static String toString(Object o, String defaultValue){ return toString(o) != null ? toString(o) : defaultValue; }
+
     public static String toString(Object o){
         return o != null ? o.toString() : null;
     }
 
     public static <T> String toString(Collection<T> collection) {
+        if(collection == null) return "NONE";
         StringBuilder sb = new StringBuilder();
         for(T t: collection){
             sb.append(t.toString()).append(", ");

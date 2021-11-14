@@ -2,12 +2,18 @@ package ch.fuzzy.movie_suggester.util;
 
 import ch.fuzzy.movie_suggester.server.IFilterElement;
 import ch.fuzzy.movie_suggester.ui.ILayout;
+import com.vaadin.flow.component.AbstractSinglePropertyField;
+import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
@@ -17,8 +23,11 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.server.StreamResource;
 
-import java.util.Collection;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -28,6 +37,13 @@ import java.util.function.Consumer;
  * @see <a href="https://vaadin.com/components">Components</a>
  */
 public class LayoutUtil {
+
+    public static Span addTitle(String text, ILayout layout){
+        Span title = new Span(text);
+        title.getElement().getStyle().set("font-weight", "bold");
+        layout.add(title);
+        return title;
+    }
 
     public static Text addText(String text, ILayout layout){
         Text t;
@@ -263,5 +279,54 @@ public class LayoutUtil {
         });
         layout.add(multiSelect);
         return multiSelect;
+    }
+
+    public static Image addImage(String dataSource, ILayout layout){
+        return addImage(dataSource, dataSource.contains("/") ? dataSource.substring(dataSource.lastIndexOf("/") + 1): dataSource, layout);
+    }
+    public static Image addImage(String dataSource, String resourceName, ILayout layout){
+        byte[] imageBytes;
+        try {
+            imageBytes = new FileInputStream(dataSource).readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        StreamResource resource = new StreamResource(resourceName, () -> new ByteArrayInputStream(imageBytes));
+        Image image = new Image(resource, "dummy image");
+        layout.add(image);
+        return image;
+    }
+
+    public static Slider addSlider(Consumer<Integer> setter, Integer value, ILayout layout){
+        return addSlider("", setter, value, 0, 100, layout);
+    }
+    public static Slider addSlider(Consumer<Integer> setter, ILayout layout){
+        return addSlider("", setter, 0, 0, 100, layout);
+    }
+    public static Slider addSlider(String title, Consumer<Integer> setter, Integer value, Integer min, Integer max, ILayout layout){
+        Slider slider = new Slider(value);
+        slider.setValue(value);
+        slider.setLabel(title);
+        slider.setMin(min);
+        slider.setMax(max);
+        slider.addValueChangeListener(event -> {
+            setter.accept(slider.getValue());
+            layout.fireStateChanged();
+        });
+        layout.add(slider);
+        return slider;
+    }
+
+    @Tag("paper-slider")
+    @NpmPackage(value = "@polymer/paper-slider", version = "3.0.1")
+    @JsModule("@polymer/paper-slider/paper-slider.js")
+    public static class Slider extends AbstractSinglePropertyField<Slider, Integer> {
+        public Slider(Integer value) {
+            super("value", value, false);
+        }
+
+        public void setMin(Integer min){ if(min!= null) getElement().setAttribute("min", min.toString());}
+        public void setMax(Integer max){ if(max!= null) getElement().setAttribute("max", max.toString());}
+        public void setLabel(String label){ if(label!= null) getElement().setAttribute("label", label);}
     }
 }

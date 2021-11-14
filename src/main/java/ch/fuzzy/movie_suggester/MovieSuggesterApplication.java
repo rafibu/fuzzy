@@ -30,23 +30,6 @@ public class MovieSuggesterApplication {
             for (Movie movie : repository.findAll()) {
                 log.info(movie.toString());
             }
-            log.info("");
-
-            // fetch a movie customer by ID
-            Movie movie = repository.findById(1L).get();
-            log.info("Movie found with findOne(1L):");
-            log.info("--------------------------------");
-            log.info(movie.toString());
-            log.info("");
-
-            // fetch movie by title
-            log.info("Movie found with findByLastNameStartsWithIgnoreCase('Titanic'):");
-            log.info("--------------------------------------------");
-            for (Movie titanic : repository
-                    .findByTitleStartsWithIgnoreCase("Titanic")) {
-                log.info(titanic.toString());
-            }
-            log.info("");
         };
     }
 

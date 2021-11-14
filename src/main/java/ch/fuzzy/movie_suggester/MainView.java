@@ -1,6 +1,7 @@
 package ch.fuzzy.movie_suggester;
 
 import ch.fuzzy.movie_suggester.ui.MovieEditorPresenter;
+import ch.fuzzy.movie_suggester.ui.MovieFilterBotPresenter;
 import ch.fuzzy.movie_suggester.ui.MovieFilterPresenter;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +17,6 @@ public class MainView extends VerticalLayout {
 		Button movieEditBtn = new Button("Edit Movies");
 		movieEditBtn.addClickListener(e -> UI.getCurrent().navigate(MovieEditorPresenter.class));
 		add(movieEditBtn);
-		add(new MovieFilterPresenter());
+		add(new MovieFilterBotPresenter());
 	}
 }

@@ -9,6 +9,8 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -29,6 +31,10 @@ public class HLayout extends HorizontalLayout implements ILayout{
 
     public HLayout(ILayout parent){
         this.parent = parent;
+    }
+
+    protected Span addTitle(String text){
+        return LayoutUtil.addTitle(text, this);
     }
 
     protected Text addText(String text){
@@ -164,6 +170,23 @@ public class HLayout extends HorizontalLayout implements ILayout{
     }
     public <T> MultiSelectListBox<T> addMultiSelect(Consumer<Set<T>> setter, T[] choices){
         return LayoutUtil.addMultiSelect(setter, choices, this);
+    }
+
+    public Image addImage(String dataSource, String resourceName){
+        return LayoutUtil.addImage(dataSource, resourceName, this);
+    }
+    public Image addImage(String dataSource){
+        return LayoutUtil.addImage(dataSource, this);
+    }
+
+    public LayoutUtil.Slider addSlider(String title, Consumer<Integer> setter, Integer value, Integer min, Integer max) {
+        return LayoutUtil.addSlider(title, setter, value, min, max, this);
+    }
+    public LayoutUtil.Slider addSlider(Consumer<Integer> setter, Integer value){
+        return LayoutUtil.addSlider(setter, value, this);
+    }
+    public LayoutUtil.Slider addSlider(Consumer<Integer> setter){
+        return LayoutUtil.addSlider(setter, this);
     }
 
     public void fireStateChanged(){if(parent != null) parent.fireStateChanged();}

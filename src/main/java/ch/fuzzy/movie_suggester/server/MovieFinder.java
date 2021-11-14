@@ -85,20 +85,19 @@ public class MovieFinder {
         return Arrays.stream(fits).sum()/fits.length;
     }
 
-    private Integer negativeKeywordFit(Movie movie, String negativeKeywords) {
+    private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords) {
         return 100 - positiveKeywordFit(movie, negativeKeywords);
     }
 
-    private Integer positiveKeywordFit(Movie movie, String positiveKeywords) {
-        List<String> keywords = List.of(positiveKeywords.split(","));
-        keywords.parallelStream().forEach(k -> k = k.toLowerCase(Locale.ROOT).trim());
-        List<Keyword.KeywordValue> keywordList = keywords.parallelStream().map(Keyword.KeywordValue::find).distinct().collect(Collectors.toList());
-        int[] overlaps = new int[keywordList.size()];
-        for(int i = 0; i < keywordList.size(); i++){
-            Keyword movieValue = Keyword.findKeyword(keywordList.remove(0), movie.getKeywords());
-            overlaps[i] = movieValue != null ? movieValue.getFit() : 0; //If no result found overlap is null
+    private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords) {
+        int[] overlaps = new int[positiveKeywords.size()];
+        Iterator<Keyword.KeywordValue> values = positiveKeywords.stream().iterator();
+        int i = 0;
+        while(values.hasNext()){
+            Keyword movieValue = Keyword.findKeyword(values.next(), movie.getKeywords());
+            overlaps[i++] = movieValue != null ? movieValue.getFit() : 0; //If no result found overlap is null
         }
-        return (Arrays.stream(overlaps).sum())/keywordList.size(); //NOTE: rbu 31.10.2021, should we take found keywords or all written ones? -> Maybe change to Checkboxes anyway
+        return (Arrays.stream(overlaps).sum())/positiveKeywords.size();
     }
 
 
