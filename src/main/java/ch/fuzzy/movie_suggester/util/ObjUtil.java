@@ -1,6 +1,7 @@
 package ch.fuzzy.movie_suggester.util;
 
 import ch.fuzzy.movie_suggester.server.Genre;
+import ch.fuzzy.movie_suggester.server.IFilterElement;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -79,15 +80,23 @@ public class ObjUtil {
     public static String toString(Object o, String defaultValue){ return toString(o) != null ? toString(o) : defaultValue; }
 
     public static String toString(Object o){
-        return o != null ? o.toString() : null;
+        return o != null ? o instanceof IFilterElement ? ((IFilterElement) o).getName() : o.toString() : null;
     }
 
     public static <T> String toString(Collection<T> collection) {
-        if(collection == null) return "NONE";
-        StringBuilder sb = new StringBuilder();
-        for(T t: collection){
-            sb.append(t.toString()).append(", ");
+        if(collection == null) return "None";
+        if(collection.stream().anyMatch(t -> t instanceof IFilterElement)){
+            StringBuilder sb = new StringBuilder();
+            for(T t: collection){
+                sb.append(((IFilterElement)t).getName()).append(", ");
+            }
+            return sb.length() > 0 ? sb.substring(0, sb.length()-2) : null;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (T t : collection) {
+                sb.append(t.toString()).append(", ");
+            }
+            return sb.length() > 0 ? sb.substring(0, sb.length() - 2) : null;
         }
-        return sb.length() > 0 ? sb.substring(0, sb.length()-2) : null;
     }
 }

@@ -8,10 +8,11 @@ import com.vaadin.flow.component.button.Button;
 
 public class MovieFilterBotPresenter extends VLayout{
 
-    private final MovieFilter filter;
+    private final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation -> is that a goal?
     private final int NUMBER_OF_QUESTIONS = 9;
     private int currentQuestion;
     private HLayout currentInput;
+    private Button send;
 
     public MovieFilterBotPresenter() {
         super();
@@ -55,23 +56,28 @@ public class MovieFilterBotPresenter extends VLayout{
         layout.getElement().getStyle().set("align-self", "center");
         layout.setWidth("75%");
         addInput(layout);
-        Button send = new Button("Send");
+        send = new Button("Send");
+        send.setEnabled(getLastAnswer(false) != null);
         layout.add(send);
-        send.addClickListener(e -> sendAnswer());
+        send.addClickListener(e -> sendAnswer(false));
         Button showResults = new Button("Show Results");
         showResults.addClickListener(e -> gotoResult());
         layout.add(showResults);
+        Button dontCare = new Button("I Don't care");
+        dontCare.addClickListener(e -> sendAnswer(true));
+        layout.add(dontCare);
         add(layout);
         return layout;
     }
 
-    private void sendAnswer() {
+    private void sendAnswer(boolean dontCare) {
         if(currentQuestion==NUMBER_OF_QUESTIONS){
             gotoResult();
             return;
         }
         remove(currentInput);
-        createAnswer(getLastAnswer());
+        createAnswer(getLastAnswer(dontCare));
+        if(currentQuestion == 1 && filter.getNumberWatchers() == 1){currentQuestion++;} //hack if only one person is watching
         currentQuestion++;
         createQuestion(getNextQuestion());
         currentInput = createInput();
@@ -82,11 +88,13 @@ public class MovieFilterBotPresenter extends VLayout{
         UI.getCurrent().navigate(MovieResultPresenter.class);
     }
 
-    private String getLastAnswer() {
+    //TODO: 17.11.2021, create Object encapsulating these Three properties getLastAnswer, getNextQuestion, addInput
+    private String getLastAnswer(boolean dontCare) {
+        if(dontCare){ return "I don't care"; }
         switch (currentQuestion){
             case 0: return ObjUtil.toString(filter.getGenres());
-            case 1: return ObjUtil.toString(filter.getRelationship());
-            case 2: return ObjUtil.toString(filter.getNumberWatchers());
+            case 1: return ObjUtil.toString(filter.getNumberWatchers());
+            case 2: return ObjUtil.toString(filter.getRelationship());
             case 3: return ObjUtil.toString(filter.getLanguage());
             case 4: return ObjUtil.toString(filter.getPlatforms());
             case 5: return ObjUtil.toString(filter.getAgeRestriction());
@@ -101,8 +109,8 @@ public class MovieFilterBotPresenter extends VLayout{
     private String getNextQuestion() {
         switch (currentQuestion){
             case 0: return "What Genre would you like to watch?";
-            case 1: return "Who are you watching the Movie with?";
-            case 2: return "How many people will be watching?";
+            case 1: return "How many people will be watching?";
+            case 2: return "Who are you watching the Movie with?";
             case 3: return "What Language should the movie be in?";
             case 4: return "On which platforms are you able to watch the movie?";
             case 5: return "Are there any Age Restrictions to consider?";
@@ -117,8 +125,8 @@ public class MovieFilterBotPresenter extends VLayout{
     private void addInput(HLayout layout) {
         switch (currentQuestion){
             case 0: layout.addMultiSelect(filter::setGenres, Genre.GenreType.values()); return;
-            case 1: layout.addSelect("", filter::setRelationship, Relationship.values()); return;
-            case 2: layout.addIntegerField("", filter::setNumberWatchers, 1, true, 1, 9999, 1); return;
+            case 1: layout.addIntegerField("", filter::setNumberWatchers, 1, true, 1, 9999, 1); return;
+            case 2: layout.addSelect("", filter::setRelationship, Relationship.values()); return;
             case 3: layout.addSelect("", filter::setLanguage, Language.values()); return;
             case 4: layout.addMultiSelect(filter::setPlatforms, Platform.values()); return;
             case 5: layout.addSelect("", filter::setAgeRestriction, AgeRestriction.values()); return;
@@ -130,4 +138,9 @@ public class MovieFilterBotPresenter extends VLayout{
         }
     }
 
+    @Override
+    public void fireStateChanged() {
+        super.fireStateChanged();
+        send.setEnabled(getLastAnswer(false) != null);
+    }
 }

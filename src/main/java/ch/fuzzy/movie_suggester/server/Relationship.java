@@ -1,9 +1,9 @@
 package ch.fuzzy.movie_suggester.server;
 
 public enum Relationship implements IFilterElement {
-    FAMILY("a Family"),
-    ROMANTIC("romantical Partners"),
-    PLATONIC("platonic Friends");
+    FAMILY("Family"),
+    ROMANTIC("Romantical Partners"),
+    PLATONIC("Platonic Friends");
 
     private final String name;
 
