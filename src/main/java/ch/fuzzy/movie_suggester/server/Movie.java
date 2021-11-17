@@ -44,6 +44,10 @@ public class Movie {
 	@Column(name = "HARD_CONCENTRATION_FIT")
 	private Integer hardConcentrationFit;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "AGE_RESTRICTION")
+	private AgeRestriction ageRestriction;
+
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, mappedBy = "movie",fetch = FetchType.EAGER)
 	private Set<Keyword> keywords = new HashSet<>();
 
@@ -72,6 +76,9 @@ public class Movie {
 
 	public Set<Language> getLanguages() {return languages;}
 	public void setLanguages(Set<Language> languages) {this.languages = languages;}
+
+	public AgeRestriction getAgeRestriction() {return ageRestriction;}
+	public void setAgeRestriction(AgeRestriction ageRestriction) {this.ageRestriction = ageRestriction;}
 
 	public Set<Keyword> getKeywords() {return keywords;}
 	public Keyword createKeyword() { Keyword k = new Keyword(this, null); keywords.add(k); return k;}

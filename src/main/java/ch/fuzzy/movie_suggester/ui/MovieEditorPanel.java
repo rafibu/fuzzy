@@ -1,9 +1,6 @@
 package ch.fuzzy.movie_suggester.ui;
 
-import ch.fuzzy.movie_suggester.server.Language;
-import ch.fuzzy.movie_suggester.server.Movie;
-import ch.fuzzy.movie_suggester.server.MovieRepository;
-import ch.fuzzy.movie_suggester.server.Platform;
+import ch.fuzzy.movie_suggester.server.*;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
@@ -66,6 +63,7 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
         firstRow.addTextArea("Description", movie::setDescription, movie.getDescription());
 
         VLayout secondRow = new VLayout(this);
+        secondRow.addSelect("Age Restriction", movie::setAgeRestriction, movie.getAgeRestriction(), AgeRestriction.values());
         secondRow.addMultiSelect(movie::setLanguages, movie.getLanguages(), Language.values());
         secondRow.addMultiSelect(movie::setPlatforms, movie.getPlatforms(), Platform.values());
 

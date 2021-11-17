@@ -61,7 +61,10 @@ public class MovieFilterBotPresenter extends VLayout{
         layout.add(send);
         send.addClickListener(e -> sendAnswer(false));
         Button showResults = new Button("Show Results");
-        showResults.addClickListener(e -> gotoResult());
+        showResults.addClickListener(e -> {
+            if(currentQuestion == 0){ filter.setNumberWatchers(0); } //If the question hasn't come up yet it should be null
+            gotoResult();
+        });
         layout.add(showResults);
         Button dontCare = new Button("I Don't care");
         dontCare.addClickListener(e -> sendAnswer(true));
@@ -113,7 +116,7 @@ public class MovieFilterBotPresenter extends VLayout{
             case 2: return "Who are you watching the Movie with?";
             case 3: return "What Language should the movie be in?";
             case 4: return "On which platforms are you able to watch the movie?";
-            case 5: return "Are there any Age Restrictions to consider?";
+            case 5: return "What's the highest Age Restriction which should be present?";
             case 6: return "How emotional should the movie be?";
             case 7: return "How invested do you want to be in the movie?";
             case 8: return "Are there any keywords the movie should contain?";

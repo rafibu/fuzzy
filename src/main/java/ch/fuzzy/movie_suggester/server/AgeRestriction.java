@@ -3,10 +3,11 @@ package ch.fuzzy.movie_suggester.server;
 import ch.fuzzy.movie_suggester.util.ObjUtil;
 
 public enum AgeRestriction implements IFilterElement{
-    SIX("6+"),
-    TWELVE("12+", SIX),
-    SIXTEEN("16+", TWELVE, SIX),
-    EIGHTEEN("18+", SIXTEEN, TWELVE, SIX);
+    NONE("None"),
+    SIX("6+", NONE),
+    TWELVE("12+", NONE, SIX),
+    SIXTEEN("16+", NONE, TWELVE, SIX),
+    EIGHTEEN("18+", NONE, SIXTEEN, TWELVE, SIX);
 
     private final String name;
     private final AgeRestriction[] included; //are implicitly included in this restriction
@@ -16,8 +17,11 @@ public enum AgeRestriction implements IFilterElement{
         included = includes;
     }
 
+    /**
+     * Does not restrict itself or if restriction is null
+     */
     public boolean restricts(AgeRestriction restriction){
-        return this == restriction || ObjUtil.isContained(restriction, included);
+        return ObjUtil.isContained(restriction, this, null) || !ObjUtil.isContained(restriction, included);
     }
 
     @Override public String getName() {return name;}

@@ -34,7 +34,10 @@ public class MovieFinder {
             movies = repo.findAll();
         }
         if(filter.getPlatforms().size() > 0) {
-            movies = movies.stream().filter(m -> m.getPlatforms().stream().anyMatch(p -> filter.getPlatforms().contains(p))).collect(Collectors.toList()); //TODO: rbu 01.11.2021, add to Query for SQL
+            movies = movies.stream().filter(m -> m.getPlatforms().stream().anyMatch(p -> filter.getPlatforms().contains(p))).collect(Collectors.toList()); //NOTE: rbu 01.11.2021, add to Query for SQL
+        }
+        if(filter.getAgeRestriction() != null){
+            movies = movies.stream().filter(m -> !filter.getAgeRestriction().restricts(m.getAgeRestriction())).collect(Collectors.toList());
         }
         return movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
     }
@@ -49,7 +52,7 @@ public class MovieFinder {
         if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship())); }
         if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords())); }
         if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords())); }
-        int fit = (fits.stream().mapToInt(f -> f).sum())/fits.size();
+        int fit =fits.size() > 0 ?  (fits.stream().mapToInt(f -> f).sum())/fits.size() : 100;
         return new MovieResult(movie, fit);
     }
 
@@ -99,7 +102,6 @@ public class MovieFinder {
         }
         return (Arrays.stream(overlaps).sum())/positiveKeywords.size();
     }
-
 
     private Map<Concentration, Integer> peopleToConcentrationMap(Map<NumberPeople, Integer> numberPeopleMap) {
         Map<Concentration, Integer> concentrationMap = new HashMap<>();
