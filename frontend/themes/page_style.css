@@ -49,7 +49,7 @@ html{
 
 body {
     --text-color: white;
-    --bkg-color: #121212;
+    --bkg-color: #000000;
 }
 
 * {
@@ -78,4 +78,8 @@ vaadin-button[disabled]{
 vaadin-button:hover{
     color: white;
     background: var(--lumo-primary-color-50pct);
+}
+
+img {
+    border-radius: 5%;
 }

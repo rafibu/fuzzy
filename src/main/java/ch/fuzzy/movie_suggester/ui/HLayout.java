@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,6 +37,8 @@ public class HLayout extends HorizontalLayout implements ILayout{
     protected Span addTitle(String text){
         return LayoutUtil.addTitle(text, this);
     }
+
+    protected Span addSpan(String text){return LayoutUtil.addSpan(text, this);}
 
     protected Text addText(String text){
         return LayoutUtil.addText(text, this);
@@ -170,6 +173,13 @@ public class HLayout extends HorizontalLayout implements ILayout{
     }
     public <T> MultiSelectListBox<T> addMultiSelect(Consumer<Set<T>> setter, T[] choices){
         return LayoutUtil.addMultiSelect(setter, choices, this);
+    }
+
+    public <T> MultiselectComboBox<T> addMultiSelectComboBox(Consumer<Set<T>> setter, Set<T> value, T[] choices){
+        return LayoutUtil.addMultiSelectComboBox(setter, value, choices, this);
+    }
+    public <T> MultiselectComboBox<T> addMultiSelectComboBox(Consumer<Set<T>> setter, T[] choices){
+        return LayoutUtil.addMultiSelectComboBox(setter, choices, this);
     }
 
     public Image addImage(String dataSource, String resourceName){

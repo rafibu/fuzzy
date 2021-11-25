@@ -3,6 +3,7 @@ package ch.fuzzy.movie_suggester.util;
 import ch.fuzzy.movie_suggester.server.IFilterElement;
 import ch.fuzzy.movie_suggester.ui.ILayout;
 import com.vaadin.flow.component.AbstractSinglePropertyField;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.server.StreamResource;
+import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -45,6 +47,12 @@ public class LayoutUtil {
         return title;
     }
 
+    public static Span addSpan(String text, ILayout layout){
+        Span title = new Span(text);
+        layout.add(title);
+        return title;
+    }
+
     public static Text addText(String text, ILayout layout){
         Text t;
         layout.add(t = new Text(text));
@@ -57,7 +65,7 @@ public class LayoutUtil {
     public static TextField addTextfield(String title, Consumer<String> setter, String value, ILayout layout){
         final TextField textfield = new TextField(title);
         if(value != null) textfield.setValue(value);
-        textfield.addKeyPressListener(e -> {
+        textfield.addValueChangeListener(e -> {
             setter.accept(textfield.getValue());
             layout.fireStateChanged();
         });
@@ -154,7 +162,7 @@ public class LayoutUtil {
     public static TextArea addTextArea(String title, Consumer<String> setter, String value, String placeholder, ILayout layout){
         final TextArea textarea = new TextArea(title);
         if(value != null) textarea.setValue(value);
-        textarea.addKeyPressListener(e -> {
+        textarea.addValueChangeListener(e -> {
             setter.accept(textarea.getValue());
             layout.fireStateChanged();
         });
@@ -281,6 +289,23 @@ public class LayoutUtil {
         return multiSelect;
     }
 
+    public static <T> MultiselectComboBox<T> addMultiSelectComboBox(Consumer<Set<T>> setter, T[] choices, ILayout layout){
+        return addMultiSelectComboBox(setter, null, choices, layout);
+    }
+    public static <T> MultiselectComboBox<T> addMultiSelectComboBox(Consumer<Set<T>> setter, Set<T> value, T[] choices, ILayout layout){
+        final MultiselectComboBox<T> multiSelect = new MultiselectComboBox<>();
+        multiSelect.setItems(choices);
+        if(value != null){
+            multiSelect.setValue(value);
+        }
+        multiSelect.addValueChangeListener(event -> {
+            setter.accept(multiSelect.getSelectedItems());
+            layout.fireStateChanged();
+        });
+        layout.add(multiSelect);
+        return multiSelect;
+    }
+
     public static Image addImage(String dataSource, ILayout layout){
         return addImage(dataSource, dataSource.contains("/") ? dataSource.substring(dataSource.lastIndexOf("/") + 1): dataSource, layout);
     }
@@ -329,4 +354,5 @@ public class LayoutUtil {
         public void setMax(Integer max){ if(max!= null) getElement().setAttribute("max", max.toString());}
         public void setLabel(String label){ if(label!= null) getElement().setAttribute("label", label);}
     }
+
 }

@@ -3,9 +3,9 @@ package ch.fuzzy.movie_suggester.ui;
 public interface ILayout {
 
     /**
-     * Should define which elements have to be rerendered if some value changes
+     * Should define which elements have to be re-rendered if some value changes
      */
-    public void fireStateChanged();
+    void fireStateChanged();
 
-    public void add(com.vaadin.flow.component.Component... components);
+    void add(com.vaadin.flow.component.Component... components);
 }

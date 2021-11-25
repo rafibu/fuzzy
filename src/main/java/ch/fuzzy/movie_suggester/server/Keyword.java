@@ -41,7 +41,68 @@ public class Keyword {
     public enum KeywordValue implements IFilterElement{
         SEX("Sex"),
         DRUGS("Drugs"),
-        CARS("Cars");
+        CARS("Cars"),
+        MILITARY("Military"),
+        SPY("Spy"),
+        SUPERHERO("Superhero"),
+        PARODY("Parody"),
+        SATIRE("Satire"),
+        ABSURDIST("Absurdist"),
+        COMIC("Comic"),
+        SCIENCE("Science"),
+        CRIME("Crime"),
+        MURDER("Murder"),
+        MAGIC("Magic"),
+        DETECTIVE("Detective"),
+        CONTEMPORARY("Contemporary"),
+        DARK_HUMOR("Dark Humor"),
+        BIOGRAPHY("Biography"),
+        AUTOBIOGRAPHY("Autobiography"),
+        GHOST("Ghost"),
+        MONSTER("Monster"),
+        PARANORMAL("Paranormal"),
+        MEDICINE("Medicine"),
+        DOCTOR("Doctor"),
+        NURSE("Nurse"),
+        HOSPITAL("Hospital"),
+        WAR("War"),
+        KILLING("Killing"),
+        REAL_LIFE("Real Life"),
+        FUTURE("Future"),
+        MEDIEVAL("Medieval"),
+        HORSES("Horses"),
+        ANIMALS("Animals"),
+        PIGS("Pigs"),
+        DOGS("Dogs"),
+        CATS("Cats"),
+        FAIRY_TALE("Fairy Tale"),
+        PIRATES("Pirates"),
+        WALL_STREET("Wall Street"),
+        BANKS("Banks"),
+        ROBBERY("Robbery"),
+        HEIST("Heist"),
+        ROBOTS("Robots"),
+        PRISON("Prison"),
+        RAPE("Rape"),
+        ZOMBIE("Zombie"),
+        CRASH("Crash"),
+        ACCIDENT("Accident"),
+        BIKER("Biker"),
+        TRUCKER("Trucker"),
+        DYSTOPIA("Dystopia"),
+        KUNG_FU("Kung Fu"),
+        HIGH_SCHOOL("High School"),
+        NINJA("Ninja"),
+        SERIAL_KILLER("Serial Killer"),
+        TIME_TRAVEL("Time Travel"),
+        BOLLYWOOD("Bollywood"),
+        BETRAYAL("Betrayal"),
+        DREAMS("Dreams"),
+        CHILDREN("Children"),
+        DYING("Dying"),
+        PARENTHOOD("Parenthood"),
+        KIDNAPPING("Kidnapping"),
+        REVENGE("Revenge");
 
         private final String name;
 
@@ -50,6 +111,8 @@ public class Keyword {
         }
 
         @Override public String getName() {return name;}
+
+        @Override public String toString() { return getName(); }
 
         public static KeywordValue find(String value) {
             try{ return KeywordValue.valueOf(value); } catch (IllegalArgumentException e) { return null; }

@@ -16,5 +16,10 @@ public class MovieResult implements Comparable<MovieResult>{
 
     public int getFit() {return fit;}
 
-    @Override public int compareTo(MovieResult o) {return (-1)*Integer.compare(getFit(), o.getFit());}
+    @Override public int compareTo(MovieResult o) {
+        if(getFit() != o.getFit()) {
+            return Integer.compare(o.getFit(), getFit());
+        }
+        return String.CASE_INSENSITIVE_ORDER.compare(getMovie().getTitle(), o.getMovie().getTitle());
+    }
 }

@@ -13,4 +13,5 @@ public enum Language implements IFilterElement {
     }
 
     @Override public String getName() {return name;}
+    @Override public String toString() { return getName(); }
 }

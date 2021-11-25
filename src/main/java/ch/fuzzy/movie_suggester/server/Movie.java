@@ -1,12 +1,14 @@
 package ch.fuzzy.movie_suggester.server;
 
 import ch.fuzzy.movie_suggester.util.ObjUtil;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.server.StreamResource;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.io.ByteArrayInputStream;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 public class Movie {
@@ -54,6 +56,10 @@ public class Movie {
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, mappedBy = "movie",fetch = FetchType.EAGER)
 	private Set<Genre> genres = new HashSet<>();
 
+	@Lob
+	@Basic(fetch = FetchType.LAZY)
+	private byte[] moviePicture;
+
 	protected Movie() {}
 
 	public Movie(String title, String description) {
@@ -61,9 +67,7 @@ public class Movie {
 		this.description = description;
 	}
 
-	public Long getId() {
-		return id;
-	}
+	public Long getId() {return id;}
 
 	public String getTitle() {return title;}
 	public void setTitle(String title) {this.title = title;}
@@ -111,6 +115,22 @@ public class Movie {
 	public void removeGenre(Genre genre){ genres.remove(genre); }
 
 	public void setKeywords(Set<Keyword> keywords) {this.keywords = keywords;}
+
+	public byte[] getMoviePicture() {return moviePicture;}
+	public void setMoviePicture(byte[] moviePicture) {this.moviePicture = moviePicture;}
+
+	//NOTE: rbu 24.11.2021, maybe move method to util class?
+	public static Image generateImage(Movie movie) {
+		if(movie.getMoviePicture() != null) {
+			StreamResource sr = new StreamResource("movie", () -> new ByteArrayInputStream(movie.getMoviePicture()));
+			sr.setContentType("image/png");
+			Image image = new Image(sr, "profile-picture");
+			image.setWidth(200, Unit.PIXELS);
+			image.setHeight(300, Unit.PIXELS);
+			return image;
+		}
+		return null;
+	}
 
 	@Override public String toString() { return String.format("Movie[id=%d, title='%s']", id, title); }
 

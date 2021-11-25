@@ -3,8 +3,6 @@ package ch.fuzzy.movie_suggester.server;
 import ch.fuzzy.movie_suggester.util.MathUtil;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -45,11 +43,28 @@ public class Genre {
     public void setFit(int fit) {assert MathUtil.isBetween(fit, 0, 100); this.fit = fit;}
 
     public enum GenreType implements IFilterElement{
-        ROMANCE("Romance"),
-        HORROR("Horror"),
-        THRILLER("Thriller"),
+        ACTION("Action"),
+        ADVENTURE("Adventure"),
+        ANIMATION("Animation"),
+        BIOGRAPHY("Biography"),
+        COMEDY("Comedy"),
+        CRIME("Crime"),
+        DOCUMENTARY("Documentary"),
+        DRAMA("Drama"),
+        FAMILY("Family"),
         FANTASY("Fantasy"),
-        COMEDY("Comedy");
+        HISTORY("History"),
+        HORROR("Horror"),
+        MUSIC("Music"),
+        MUSICAL("Musical"),
+        MYSTERY("Mystery"),
+        ROMANCE("Romance"),
+        SCIFI("Sci-Fi"),
+        SHORT("Short"),
+        SPORT("Sport"),
+        THRILLER("Thriller"),
+        WAR("War"),
+        WESTERN("Western");
 
         private final String name;
 
@@ -58,6 +73,7 @@ public class Genre {
         }
 
         @Override public String getName() {return name;}
+        @Override public String toString() { return getName(); }
     }
 }
 

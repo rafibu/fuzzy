@@ -21,7 +21,7 @@ public enum AgeRestriction implements IFilterElement{
      * Does not restrict itself or if restriction is null
      */
     public boolean restricts(AgeRestriction restriction){
-        return ObjUtil.isContained(restriction, this, null) || !ObjUtil.isContained(restriction, included);
+        return !ObjUtil.isContained(restriction, this, null) && !ObjUtil.isContained(restriction, included);
     }
 
     @Override public String getName() {return name;}

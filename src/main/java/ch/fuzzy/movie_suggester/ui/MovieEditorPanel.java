@@ -4,12 +4,20 @@ import ch.fuzzy.movie_suggester.server.*;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 @SpringComponent
 @UIScope
@@ -78,8 +86,10 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
         VLayout fifthRow = new VLayout(this);
         fifthRow.add(new MovieKeywordPanel(this));
 
+        VLayout sixthRow = new VLayout(this);
+        initUploaderImage(sixthRow);
 
-        panel.add(firstRow, secondRow, thirdRow, fourthRow, fifthRow);
+        panel.add(firstRow, secondRow, thirdRow, fourthRow, fifthRow, sixthRow);
         return panel;
     }
 
@@ -102,12 +112,14 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
             setVisible(false);
             return;
         }
+        if(this.movie != null) {
+            repository.save(movie);
+        }
         final boolean persisted = movie.getId() != null;
         if (persisted) {
             // Find fresh entity for editing
             this.movie = repository.findById(movie.getId()).get();
-        }
-        else {
+        } else {
             this.movie = movie;
         }
         panel.removeAll();
@@ -131,4 +143,49 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
     }
 
     public Movie getMovie() {return movie;}
+
+    private void initUploaderImage(ILayout layout) {
+        save();
+        MultiFileMemoryBuffer buffer = new MultiFileMemoryBuffer();
+        Upload upload = new Upload(buffer);
+        upload.setAcceptedFileTypes("image/jpeg","image/jpg", "image/png", "image/gif");
+
+        upload.addSucceededListener(event -> {
+            String attachmentName = event.getFileName();
+            try {
+                boolean hadImage = movie.getMoviePicture() != null;
+                // The image can be jpg png or gif, but we store it always as png file in this example
+                BufferedImage inputImage = ImageIO.read(buffer.getInputStream(attachmentName));
+                ByteArrayOutputStream pngContent = new ByteArrayOutputStream();
+                ImageIO.write(inputImage, "png", pngContent);
+                saveProfilePicture(pngContent.toByteArray());
+                if(!hadImage) showImage(layout);
+                layout.fireStateChanged();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        layout.add(upload);
+        showImage(layout);
+        Button delete = new Button("Delete Picture");
+        delete.addClickListener(e -> {
+            movie.setMoviePicture(null);
+            layout.fireStateChanged();
+        });
+        delete.setEnabled(movie.getMoviePicture() != null);
+        layout.add(delete);
+    }
+
+    private void saveProfilePicture(byte[] imageBytes) {
+        getMovie().setMoviePicture(imageBytes);
+        repository.save(movie);
+    }
+
+    private void showImage(ILayout layout) {
+        Image image = Movie.generateImage(movie);
+        if(image != null) {
+            image.setHeight("100%");
+            layout.add(image);
+        }
+    }
 }

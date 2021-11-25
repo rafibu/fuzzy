@@ -62,7 +62,7 @@ public class MovieFilterBotPresenter extends VLayout{
         send.addClickListener(e -> sendAnswer(false));
         Button showResults = new Button("Show Results");
         showResults.addClickListener(e -> {
-            if(currentQuestion == 0){ filter.setNumberWatchers(0); } //If the question hasn't come up yet it should be null
+            if(currentQuestion == 0){ filter.setNumberWatchers(0); } //If the question hasn't come up, yet it should be null
             gotoResult();
         });
         layout.add(showResults);
@@ -70,6 +70,7 @@ public class MovieFilterBotPresenter extends VLayout{
         dontCare.addClickListener(e -> sendAnswer(true));
         layout.add(dontCare);
         add(layout);
+        send.focus();
         return layout;
     }
 
@@ -84,6 +85,7 @@ public class MovieFilterBotPresenter extends VLayout{
         currentQuestion++;
         createQuestion(getNextQuestion());
         currentInput = createInput();
+        setSizeFull();
     }
 
     private void gotoResult() {
@@ -101,8 +103,8 @@ public class MovieFilterBotPresenter extends VLayout{
             case 3: return ObjUtil.toString(filter.getLanguage());
             case 4: return ObjUtil.toString(filter.getPlatforms());
             case 5: return ObjUtil.toString(filter.getAgeRestriction());
-            case 6: return ObjUtil.toString(filter.getEmotionality());
-            case 7: return ObjUtil.toString(filter.getInvested());
+            case 6: return ObjUtil.toString(filter.getEmotionality()) + "%";
+            case 7: return ObjUtil.toString(filter.getInvested()) + "%";
             case 8: return ObjUtil.toString(filter.getPositiveKeywords());
             case 9: return ObjUtil.toString(filter.getNegativeKeywords());
             default: throw  new IllegalStateException("No Answer defined for question " + currentQuestion);
@@ -127,16 +129,16 @@ public class MovieFilterBotPresenter extends VLayout{
 
     private void addInput(HLayout layout) {
         switch (currentQuestion){
-            case 0: layout.addMultiSelect(filter::setGenres, Genre.GenreType.values()); return;
+            case 0: layout.addMultiSelectComboBox(filter::setGenres, Genre.GenreType.values()); return;
             case 1: layout.addIntegerField("", filter::setNumberWatchers, 1, true, 1, 9999, 1); return;
             case 2: layout.addSelect("", filter::setRelationship, Relationship.values()); return;
             case 3: layout.addSelect("", filter::setLanguage, Language.values()); return;
-            case 4: layout.addMultiSelect(filter::setPlatforms, Platform.values()); return;
+            case 4: layout.addMultiSelectComboBox(filter::setPlatforms, Platform.values()); return;
             case 5: layout.addSelect("", filter::setAgeRestriction, AgeRestriction.values()); return;
             case 6: layout.addSlider(filter::setEmotionality); return;
             case 7: layout.addSlider(filter::setInvested); return;
-            case 8: layout.addMultiSelect(filter::setPositiveKeywords, Keyword.KeywordValue.values()); return;
-            case 9: layout.addMultiSelect(filter::setNegativeKeywords, Keyword.KeywordValue.values()); return;
+            case 8: layout.addMultiSelectComboBox(filter::setPositiveKeywords, Keyword.KeywordValue.values()); return;
+            case 9: layout.addMultiSelectComboBox(filter::setNegativeKeywords, Keyword.KeywordValue.values()); return;
             default: throw new IllegalStateException("No Inputmethod defined for question " + currentQuestion);
         }
     }
