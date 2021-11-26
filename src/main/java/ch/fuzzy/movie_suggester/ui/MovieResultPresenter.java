@@ -48,7 +48,7 @@ public class MovieResultPresenter extends VLayout{
     public VLayout movieLayout(MovieResult result){
         Movie movie = result.getMovie();
         VLayout layout = new VLayout(this);
-        Image image = Movie.generateImage(movie); //TODO rounded Edges
+        Image image = Movie.generateImage(movie, true); //TODO rounded Edges
         image.addClickListener(event -> popUp(result.getMovie()).open());
         layout.add(image);
         layout.addTitle(movie.getTitle());
@@ -58,11 +58,11 @@ public class MovieResultPresenter extends VLayout{
 
     public Dialog popUp(Movie movie){
         VLayout layout = new VLayout();
-        layout.add(Movie.generateImage(movie));
+        layout.add(Movie.generateImage(movie, true));
         layout.addTitle(movie.getTitle());
         layout.addSpan(movie.getDescription());
         layout.addSpan("Genres: " + ObjUtil.toString(movie.getGenres()));
-        layout.addSpan("Age Restriction: " + movie.getAgeRestriction().getName());
+        layout.addSpan("Age Restriction: " + ObjUtil.toString(movie.getAgeRestriction()));
         layout.addSpan("Available on " + ObjUtil.toString(movie.getPlatforms()));
         Dialog dialog = new Dialog(layout);
         dialog.setMaxHeight("700px");
