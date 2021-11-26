@@ -182,7 +182,7 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
     }
 
     private void showImage(ILayout layout) {
-        Image image = Movie.generateImage(movie);
+        Image image = Movie.generateImage(movie, false);
         if(image != null) {
             image.setHeight("100%");
             layout.add(image);

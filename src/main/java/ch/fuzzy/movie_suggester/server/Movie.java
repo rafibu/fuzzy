@@ -4,9 +4,12 @@ import ch.fuzzy.movie_suggester.util.ObjUtil;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.StreamResource;
-
 import javax.persistence.*;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +22,8 @@ public class Movie {
 
 	private String title;
 	private String description;
+
+	private static final File fallback = new File("frontend/pictures/fallback_movie.png");
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)
@@ -116,20 +121,30 @@ public class Movie {
 
 	public void setKeywords(Set<Keyword> keywords) {this.keywords = keywords;}
 
+	public byte[] getMoviePicture(boolean includeFallback) throws IOException {return moviePicture != null ? moviePicture : includeFallback ? Files.readAllBytes(getFallbackPath()) : null;}
+
 	public byte[] getMoviePicture() {return moviePicture;}
 	public void setMoviePicture(byte[] moviePicture) {this.moviePicture = moviePicture;}
 
+	private Path getFallbackPath() {return fallback.toPath();}
+
 	//NOTE: rbu 24.11.2021, maybe move method to util class?
-	public static Image generateImage(Movie movie) {
-		if(movie.getMoviePicture() != null) {
-			StreamResource sr = new StreamResource("movie", () -> new ByteArrayInputStream(movie.getMoviePicture()));
-			sr.setContentType("image/png");
-			Image image = new Image(sr, "profile-picture");
-			image.setWidth(200, Unit.PIXELS);
-			image.setHeight(300, Unit.PIXELS);
-			return image;
-		}
-		return null;
+	public static Image generateImage(Movie movie, boolean includeFallback) {
+		StreamResource sr = new StreamResource("movie", () -> {
+			try {
+				return new ByteArrayInputStream(movie.getMoviePicture(includeFallback));
+			} catch (IOException e) {
+				if (includeFallback) {
+					throw new RuntimeException("Movie Fallback missing");
+				}
+				return new ByteArrayInputStream(new byte[0]);
+			}
+		});
+		sr.setContentType("image/png");
+		Image image = new Image(sr, "profile-picture");
+		image.setWidth(200, Unit.PIXELS);
+		image.setHeight(300, Unit.PIXELS);
+		return image;
 	}
 
 	@Override public String toString() { return String.format("Movie[id=%d, title='%s']", id, title); }

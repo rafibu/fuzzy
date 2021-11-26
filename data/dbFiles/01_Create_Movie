@@ -8,6 +8,7 @@ INSERT INTO MOVIE (ID, TITLE, DESCRIPTION) VALUES (2, 'Star Wars', 'Stars start 
 INSERT INTO MOVIE (ID, TITLE, DESCRIPTION) VALUES (3, 'Hacker Boi', 'Boy that Hacks');
 INSERT INTO MOVIE (ID, TITLE, DESCRIPTION) VALUES (4, 'Yes Man', 'Man says yes a lot');
 INSERT INTO MOVIE (ID, TITLE, DESCRIPTION) VALUES (5, 'Ring Thing', 'Swiss German Movie');
+
 CREATE TABLE GENRE (
                            ID IDENTITY,
                            TYPE varchar(50)
