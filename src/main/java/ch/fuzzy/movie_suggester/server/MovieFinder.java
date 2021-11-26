@@ -33,7 +33,7 @@ public class MovieFinder {
         } else {
             movies = repo.findAll();
         }
-        if(filter.getPlatforms().size() > 0) {
+        if(filter.getPlatforms() != null && filter.getPlatforms().size() > 0) {
             movies = movies.stream().filter(m -> m.getPlatforms().stream().anyMatch(p -> filter.getPlatforms().contains(p))).collect(Collectors.toList()); //NOTE: rbu 01.11.2021, add to Query for SQL
         }
         if(filter.getAgeRestriction() != null){
@@ -48,7 +48,7 @@ public class MovieFinder {
      */
     private MovieResult fittingMovie(Movie movie, MovieFilter filter){
         List<Integer> fits = new ArrayList<>();
-        if(filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres())); }
+        if(filter.getGenres() != null && filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres())); }
         if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship())); }
         if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords())); }
         if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords())); }
