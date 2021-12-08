@@ -23,7 +23,7 @@ public class MovieResultPresenter extends VLayout{
         if(filter != null) lastFilter = filter;
         List<MovieResult> movies = MovieFinder.get().findMovies(lastFilter);
         add(resultsLayout(movies));
-        //Grid for testing purposes
+        //Grid for testing purposes -> shows more information
 //        final Grid<MovieResult> grid = new Grid<>(MovieResult.class);
 //        grid.setHeight("300px");
 //        grid.setColumns("movie.id", "movie.title", "movie.description", "movie.genres", "movie.platforms", "movie.languages", "fit");

@@ -133,10 +133,7 @@ public class Movie {
 		StreamResource sr = new StreamResource("movie", () -> {
 			try {
 				return new ByteArrayInputStream(movie.getMoviePicture(includeFallback));
-			} catch (IOException e) {
-				if (includeFallback) {
-					throw new RuntimeException("Movie Fallback missing");
-				}
+			} catch (Exception e) {
 				return new ByteArrayInputStream(new byte[0]);
 			}
 		});

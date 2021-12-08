@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ch.fuzzy.movie_suggester.server.MovieFilter.Weight;
+
 public class MovieFinder {
 
     private static final Logger log = LoggerFactory.getLogger(MovieFinder.class);
@@ -48,26 +50,26 @@ public class MovieFinder {
      */
     private MovieResult fittingMovie(Movie movie, MovieFilter filter){
         List<Integer> fits = new ArrayList<>();
-        if(filter.getGenres() != null && filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres())); }
-        if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship())); }
-        if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords())); }
-        if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords())); }
+        if(filter.getGenres() != null && filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres(), filter.getGenreWeight())); }
+        if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight())); }
+        if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords(), filter.getPositiveKeywordsWeight())); }
+        if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords(), filter.getNegativeKeywordsWeight())); }
         int fit =fits.size() > 0 ?  (fits.stream().mapToInt(f -> f).sum())/fits.size() : 100;
         return new MovieResult(movie, fit);
     }
 
-    private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship) {
+    private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship, Weight numberWatchersWeight, Weight relationshipWeight) {
         Map<Concentration, Integer> concentrationMap = new HashMap<>();
         if(numberWatchers != null) {
             Map<NumberPeople, Integer> numberPeopleMap = new HashMap<>();
             Arrays.stream(NumberPeople.values()).forEach(v -> numberPeopleMap.put(v, calculatePeopleFit(v, numberWatchers)));
             if(relationship != null) {
                 Arrays.stream(Concentration.values()).forEach(v -> concentrationMap.put(v, calculateConcentrationFit(v, numberWatchers, relationship, numberPeopleMap)));
-                return bestFit(movie, concentrationMap);
+                return (int)(factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * bestFit(movie, concentrationMap));
             }
-            return bestFit(movie, peopleToConcentrationMap(numberPeopleMap));
+            return (int)(factorFor(numberWatchersWeight) * bestFit(movie, peopleToConcentrationMap(numberPeopleMap)));
         }
-        return movie.getModerateConcentrationFit(); //If we don't know how many people there are we just take one of the fits
+        return (int)(factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * movie.getModerateConcentrationFit()); //If we don't know how many people there are we just take one of the fits
     }
 
     private int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
@@ -83,16 +85,18 @@ public class MovieFinder {
         }
     }
 
-    private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres) {
+    private double factorFor(MovieFilter.Weight weight){ return MovieFilter.Weight.getFactor(weight); }
+
+    private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres, MovieFilter.Weight genreWeight) {
         int[] fits = genres.stream().mapToInt(movie::calculateGenreFit).toArray();
-        return Arrays.stream(fits).sum()/fits.length;
+        return (int) factorFor(genreWeight)*Arrays.stream(fits).sum()/fits.length;
     }
 
-    private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords) {
-        return 100 - positiveKeywordFit(movie, negativeKeywords);
+    private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords, MovieFilter.Weight weight) {
+        return (int) factorFor(weight) * 100 - positiveKeywordFit(movie, negativeKeywords, MovieFilter.Weight.NULL);
     }
 
-    private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords) {
+    private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords, MovieFilter.Weight weight) {
         int[] overlaps = new int[positiveKeywords.size()];
         Iterator<Keyword.KeywordValue> values = positiveKeywords.stream().iterator();
         int i = 0;
@@ -100,7 +104,7 @@ public class MovieFinder {
             Keyword movieValue = Keyword.findKeyword(values.next(), movie.getKeywords());
             overlaps[i++] = movieValue != null ? movieValue.getFit() : 0; //If no result found overlap is null
         }
-        return (Arrays.stream(overlaps).sum())/positiveKeywords.size();
+        return (int) factorFor(weight) *(Arrays.stream(overlaps).sum())/positiveKeywords.size();
     }
 
     private Map<Concentration, Integer> peopleToConcentrationMap(Map<NumberPeople, Integer> numberPeopleMap) {

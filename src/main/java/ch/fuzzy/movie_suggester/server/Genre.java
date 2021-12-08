@@ -1,6 +1,7 @@
 package ch.fuzzy.movie_suggester.server;
 
 import ch.fuzzy.movie_suggester.util.MathUtil;
+import ch.fuzzy.movie_suggester.util.ObjUtil;
 
 import javax.persistence.*;
 
@@ -34,7 +35,7 @@ public class Genre {
 
     public String getName() {return type != null ? type.getName() : "NULL";}
 
-    @Override public String toString() {return (type != null ? type.name : "[null]") +" fit: " +  getFit();}
+    @Override public String toString() {return ObjUtil.toString(type); }
 
     public GenreType getType() { return type; }
     public void setType(GenreType type) {this.type = type;}

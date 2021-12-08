@@ -6,12 +6,14 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 
+import java.util.function.Consumer;
+
 public class MovieFilterBotPresenter extends VLayout{
 
-    private final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation -> is that a goal?
+    private final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation if wanted
     private final int NUMBER_OF_QUESTIONS = 9;
     private int currentQuestion;
-    private HLayout currentInput;
+    private VLayout currentInput;
     private Button send;
 
     public MovieFilterBotPresenter() {
@@ -51,10 +53,11 @@ public class MovieFilterBotPresenter extends VLayout{
         add(layout);
     }
 
-    private HLayout createInput(){
-        HLayout layout = new HLayout(this);
-        layout.getElement().getStyle().set("align-self", "center");
-        layout.setWidth("75%");
+    private VLayout createInput(){
+        VLayout resLayout = new VLayout(this);
+        HLayout layout = new HLayout(resLayout);
+        resLayout.getElement().getStyle().set("align-self", "center");
+        resLayout.setWidth("75%");
         addInput(layout);
         send = new Button("Send");
         send.setEnabled(getLastAnswer(false) != null);
@@ -69,9 +72,11 @@ public class MovieFilterBotPresenter extends VLayout{
         Button dontCare = new Button("I Don't care");
         dontCare.addClickListener(e -> sendAnswer(true));
         layout.add(dontCare);
-        add(layout);
-        send.focus();
-        return layout;
+        HLayout secondLayout = new HLayout(resLayout);
+        addWeight(secondLayout);
+        resLayout.add(layout, secondLayout);
+        add(resLayout);
+        return resLayout;
     }
 
     private void sendAnswer(boolean dontCare) {
@@ -93,7 +98,7 @@ public class MovieFilterBotPresenter extends VLayout{
         UI.getCurrent().navigate(MovieResultPresenter.class);
     }
 
-    //TODO: 17.11.2021, create Object encapsulating these Three properties getLastAnswer, getNextQuestion, addInput
+    //TODO: 17.11.2021, create Enum encapsulating these Three properties getLastAnswer, getNextQuestion, addInput
     private String getLastAnswer(boolean dontCare) {
         if(dontCare){ return "I don't care"; }
         switch (currentQuestion){
@@ -141,6 +146,27 @@ public class MovieFilterBotPresenter extends VLayout{
             case 9: layout.addMultiSelectComboBox(filter::setNegativeKeywords, Keyword.KeywordValue.values()); return;
             default: throw new IllegalStateException("No Inputmethod defined for question " + currentQuestion);
         }
+    }
+
+    private void addWeight(HLayout layout){
+        switch (currentQuestion){
+            case 0: addWeightChooser(layout, filter::setGenreWeight); return;
+            case 1: addWeightChooser(layout, filter::setNumberWatchersWeight); return;
+            case 2: addWeightChooser(layout, filter::setRelationshipWeight); return;
+            case 3:
+            case 4: //For Hard rules there are no weights
+            case 5: return;
+            case 6: addWeightChooser(layout, filter::setEmotionalityWeight); return;
+            case 7: addWeightChooser(layout, filter::setInvestedWeight); return;
+            case 8: addWeightChooser(layout, filter::setPositiveKeywordsWeight); return;
+            case 9: addWeightChooser(layout, filter::setNegativeKeywordsWeight); return;
+            default: throw new IllegalStateException("No Weight defined for question " + currentQuestion);
+        }
+    }
+
+    private void addWeightChooser(HLayout layout, Consumer<MovieFilter.Weight> setter) {
+        layout.addText("Importance of this Question: ");
+        layout.addRadioButtons("", setter, MovieFilter.Weight.values(), true);
     }
 
     @Override

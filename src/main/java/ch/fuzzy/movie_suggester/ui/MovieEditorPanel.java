@@ -178,7 +178,6 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
 
     private void saveProfilePicture(byte[] imageBytes) {
         getMovie().setMoviePicture(imageBytes);
-        repository.save(movie);
     }
 
     private void showImage(ILayout layout) {
