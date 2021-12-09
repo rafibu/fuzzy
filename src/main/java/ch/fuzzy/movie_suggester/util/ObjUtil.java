@@ -99,4 +99,8 @@ public class ObjUtil {
             return sb.length() > 0 ? sb.substring(0, sb.length() - 2) : null;
         }
     }
+
+    public static <T> T assertUniqueNotNull(Collection<T> collection){
+        return assertNotNull(assertUnique(collection));
+    }
 }

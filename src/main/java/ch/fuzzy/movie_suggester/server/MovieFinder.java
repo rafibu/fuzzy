@@ -1,5 +1,6 @@
 package ch.fuzzy.movie_suggester.server;
 
+import ch.fuzzy.movie_suggester.util.MathUtil;
 import ch.fuzzy.movie_suggester.util.ObjUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +16,18 @@ public class MovieFinder {
 
     private static MovieFinder INSTANCE;
     private final MovieRepository repo;
+    private final SettingsRepository settingsRepository;
 
-    public static void initialize(MovieRepository repo){
-        INSTANCE = new MovieFinder(repo);
+    public static void initialize(MovieRepository repo, SettingsRepository sr){
+        INSTANCE = new MovieFinder(repo, sr);
     }
 
     public static MovieFinder get(){ return INSTANCE; }
 
-    public MovieFinder(MovieRepository repo){
+    public MovieFinder(MovieRepository repo, SettingsRepository settingsRepository){
         assert INSTANCE == null;
         this.repo = repo;
+        this.settingsRepository = settingsRepository;
     }
 
     public List<MovieResult> findMovies(MovieFilter filter){
@@ -54,8 +57,19 @@ public class MovieFinder {
         if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight())); }
         if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords(), filter.getPositiveKeywordsWeight())); }
         if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords(), filter.getNegativeKeywordsWeight())); }
-        int fit =fits.size() > 0 ?  (fits.stream().mapToInt(f -> f).sum())/fits.size() : 100;
+        int fit = calculateFinalFit(fits);
         return new MovieResult(movie, fit);
+    }
+
+    private int calculateFinalFit(List<Integer> fits){
+        if(fits.size() == 0){ return 100; } //return 100 for no filter
+        Settings settings = ObjUtil.assertUniqueNotNull(settingsRepository.findAll());
+        if(settings.getDistanceFunction()== Settings.Distance.L1){
+            return (fits.stream().mapToInt(f -> f).sum())/fits.size();
+        } else {
+            //we assume L2 Distance if not otherwise specified
+            return (int)(Math.sqrt(fits.stream().mapToInt(f -> (int)MathUtil.sq(f)).sum()))/fits.size();
+        }
     }
 
     private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship, Weight numberWatchersWeight, Weight relationshipWeight) {

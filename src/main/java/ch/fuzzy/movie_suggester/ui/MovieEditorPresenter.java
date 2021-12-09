@@ -2,6 +2,9 @@ package ch.fuzzy.movie_suggester.ui;
 
 import ch.fuzzy.movie_suggester.server.Movie;
 import ch.fuzzy.movie_suggester.server.MovieRepository;
+import ch.fuzzy.movie_suggester.server.Settings;
+import ch.fuzzy.movie_suggester.server.SettingsRepository;
+import ch.fuzzy.movie_suggester.util.ObjUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -15,17 +18,21 @@ public class MovieEditorPresenter extends VLayout {
 
     private final Grid<Movie> grid;
     private final MovieRepository repo;
+    private final SettingsRepository settingsRepository;
+    Settings settings;
 
-    public MovieEditorPresenter(MovieRepository repo) {
+    public MovieEditorPresenter(MovieRepository repo, SettingsRepository settingsRepo) {
         this.repo = repo;
         MovieEditorPanel editor = new MovieEditorPanel(repo);
-        grid = new Grid<>(Movie.class);
 
         final TextField filter =new TextField();
 
         final Button addNewBtn = new Button("New movie");
-
+        this.settingsRepository = settingsRepo;
+        grid = new Grid<>(Movie.class);
         // build layout
+        this.settings = ObjUtil.assertUniqueNotNull(settingsRepo.findAll());
+        addRadioButtons("Distance function:", settings::setDistanceFunction, settings.getDistanceFunction(), Settings.Distance.values());
         HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn);
         add(actions, grid, editor);
 
@@ -66,5 +73,11 @@ public class MovieEditorPresenter extends VLayout {
         else {
             grid.setItems(repo.findByTitleStartsWithIgnoreCase(filterText));
         }
+    }
+
+    @Override
+    public void fireStateChanged() {
+        super.fireStateChanged();
+        settingsRepository.save(settings);
     }
 }

@@ -140,7 +140,6 @@ public class LayoutUtil {
     }
     public static <T extends IFilterElement> RadioButtonGroup<T>  addRadioButtons(String title, Consumer<T> setter, T value, T[] choices, boolean vertical, ILayout layout){
         final RadioButtonGroup<T> radioGroup = new RadioButtonGroup<>();
-        if(value != null) radioGroup.setValue(value);
         radioGroup.setLabel(title);
         radioGroup.setItems(choices);
         radioGroup.setRenderer(new TextRenderer<>(T::getName));
@@ -149,6 +148,7 @@ public class LayoutUtil {
             setter.accept(radioGroup.getValue());
             layout.fireStateChanged();
         });
+        if(value != null) radioGroup.setValue(value);
         layout.add(radioGroup);
         return radioGroup;
     }
