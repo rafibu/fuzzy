@@ -25,6 +25,12 @@ public class Genre {
 
     private Integer fit;
 
+    public Genre(Movie movie, GenreType type, int fit){
+        this.movie = movie;
+        this.type = type;
+        this.fit = fit;
+    }
+
     public Genre(Movie movie, GenreType type){
         this.movie = movie;
         this.type = type;

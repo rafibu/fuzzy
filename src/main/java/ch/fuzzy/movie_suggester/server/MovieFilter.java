@@ -33,6 +33,7 @@ public class MovieFilter {
     private AgeRestriction ageRestriction;
 
     private Screen screen;
+    private Weight screenWeight;
 
     private Collection<Keyword.KeywordValue> positiveKeywords;
     private Weight positiveKeywordsWeight;
@@ -99,6 +100,9 @@ public class MovieFilter {
 
     public Weight getNegativeKeywordsWeight() {return negativeKeywordsWeight;}
     public void setNegativeKeywordsWeight(Weight negativeKeywordsWeight) {this.negativeKeywordsWeight = negativeKeywordsWeight;}
+
+    public void setScreenWeight(Weight weight) {this.screenWeight = weight;}
+    public Weight getScreenWeight() {return screenWeight;}
 
     public boolean hasValues() {
         return getGenres().size() > 0 ||

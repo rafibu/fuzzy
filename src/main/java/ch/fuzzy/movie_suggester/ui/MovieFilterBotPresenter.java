@@ -10,15 +10,21 @@ import java.util.function.Consumer;
 
 public class MovieFilterBotPresenter extends VLayout{
 
-    private final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation if wanted
-    private final int NUMBER_OF_QUESTIONS = 9;
+    protected final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation if wanted
+    private final int NUMBER_OF_QUESTIONS = 10;
     private int currentQuestion;
     private VLayout currentInput;
     private Button send;
+    protected boolean isEditMovie;
 
-    public MovieFilterBotPresenter() {
+    private final boolean isInvestment;
+
+    public MovieFilterBotPresenter(SettingsRepository repo) {this(repo, false);}
+    protected MovieFilterBotPresenter(SettingsRepository repo, boolean isEditMovie) {
         super();
         this.filter = new MovieFilter();
+        this.isEditMovie = isEditMovie;
+        isInvestment = !ObjUtil.assertUniqueNotNull(repo.findAll()).isConcentrationFit();
         startQuestionnaire();
     }
 
@@ -64,12 +70,14 @@ public class MovieFilterBotPresenter extends VLayout{
         layout.add(send);
         send.addClickListener(e -> sendAnswer(false));
         Button showResults = new Button("Show Results");
+        showResults.setVisible(!isEditMovie);
         showResults.addClickListener(e -> {
             if(currentQuestion == 0){ filter.setNumberWatchers(0); } //If the question hasn't come up, yet it should be null
             gotoResult();
         });
         layout.add(showResults);
         Button dontCare = new Button("I Don't care");
+        dontCare.setVisible(!isEditMovie);
         dontCare.addClickListener(e -> sendAnswer(true));
         layout.add(dontCare);
         HLayout secondLayout = new HLayout(resLayout);
@@ -86,14 +94,23 @@ public class MovieFilterBotPresenter extends VLayout{
         }
         remove(currentInput);
         createAnswer(getLastAnswer(dontCare));
-        if(currentQuestion == 1 && filter.getNumberWatchers() == 1){currentQuestion++;} //hack if only one person is watching
         currentQuestion++;
+        currentQuestion = skip(currentQuestion, 2, filter.getNumberWatchers() == 1);
+        currentQuestion = skip(currentQuestion, 7, isInvestment);
         createQuestion(getNextQuestion());
         currentInput = createInput();
         setSizeFull();
     }
 
-    private void gotoResult() {
+    /**
+     * Some Questions are skipped when they don't make sense or aren't considered in the result
+     */
+    private int skip(int currentQuestion, int toSkip, boolean condition){
+        if(condition && currentQuestion == toSkip){ return ++currentQuestion; }
+        return currentQuestion;
+    }
+
+    protected void gotoResult() {
         ComponentUtil.setData(UI.getCurrent(), MovieFilter.class, filter);
         UI.getCurrent().navigate(MovieResultPresenter.class);
     }
@@ -112,6 +129,7 @@ public class MovieFilterBotPresenter extends VLayout{
             case 7: return ObjUtil.toString(filter.getInvested()) + "%";
             case 8: return ObjUtil.toString(filter.getPositiveKeywords());
             case 9: return ObjUtil.toString(filter.getNegativeKeywords());
+            case 10: return ObjUtil.toString(filter.getScreen());
             default: throw  new IllegalStateException("No Answer defined for question " + currentQuestion);
         }
     }
@@ -128,6 +146,7 @@ public class MovieFilterBotPresenter extends VLayout{
             case 7: return "How invested do you want to be in the movie?";
             case 8: return "Are there any keywords the movie should contain?";
             case 9: return "Are there any keywords you'd like to avoid?";
+            case 10: return "On what Screen are you watching?";
             default: throw  new IllegalStateException("No Question defined for question " + currentQuestion);
         }
     }
@@ -144,11 +163,13 @@ public class MovieFilterBotPresenter extends VLayout{
             case 7: layout.addSlider(filter::setInvested); return;
             case 8: layout.addMultiSelectComboBox(filter::setPositiveKeywords, Keyword.KeywordValue.values()); return;
             case 9: layout.addMultiSelectComboBox(filter::setNegativeKeywords, Keyword.KeywordValue.values()); return;
+            case 10: layout.addSelect("", filter::setScreen, Screen.getFilterValues()); return;
             default: throw new IllegalStateException("No Inputmethod defined for question " + currentQuestion);
         }
     }
 
     private void addWeight(HLayout layout){
+        if(isEditMovie){ return;}
         switch (currentQuestion){
             case 0: addWeightChooser(layout, filter::setGenreWeight); return;
             case 1: addWeightChooser(layout, filter::setNumberWatchersWeight); return;
@@ -160,6 +181,7 @@ public class MovieFilterBotPresenter extends VLayout{
             case 7: addWeightChooser(layout, filter::setInvestedWeight); return;
             case 8: addWeightChooser(layout, filter::setPositiveKeywordsWeight); return;
             case 9: addWeightChooser(layout, filter::setNegativeKeywordsWeight); return;
+            case 10: addWeightChooser(layout, filter::setScreenWeight); return;
             default: throw new IllegalStateException("No Weight defined for question " + currentQuestion);
         }
     }

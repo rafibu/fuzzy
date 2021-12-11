@@ -65,11 +65,19 @@ public class Movie {
 	@Basic(fetch = FetchType.LAZY)
 	private byte[] moviePicture;
 
+	@Enumerated(EnumType.STRING)
+	private Screen optimalScreen;
+
+	private Integer optimalInvestment;
+
+	private Integer optimalEmotionality;
+
 	protected Movie() {}
 
 	public Movie(String title, String description) {
 		this.title = title;
 		this.description = description;
+		this.optimalScreen = Screen.NOT_IMPORTANT;
 	}
 
 	public Long getId() {return id;}
@@ -95,21 +103,21 @@ public class Movie {
 
 	public Integer getLowConcentrationFit() {return lowConcentrationFit;}
 	public void setLowConcentrationFit(Integer lowConcentrationFit) {
-		if(lowConcentrationFit != null && lowConcentrationFit > 0 && lowConcentrationFit < 100){
+		if(lowConcentrationFit != null && lowConcentrationFit >= 0 && lowConcentrationFit <= 100){
 			this.lowConcentrationFit = lowConcentrationFit;
 		} else this.lowConcentrationFit = null;
 	}
 
 	public Integer getModerateConcentrationFit() {return moderateConcentrationFit;}
 	public void setModerateConcentrationFit(Integer moderateConcentrationFit) {
-		if(moderateConcentrationFit != null && moderateConcentrationFit > 0 && moderateConcentrationFit < 100){
+		if(moderateConcentrationFit != null && moderateConcentrationFit >= 0 && moderateConcentrationFit <= 100){
 			this.moderateConcentrationFit = moderateConcentrationFit;
 		} else this.moderateConcentrationFit = null;
 	}
 
 	public Integer getHardConcentrationFit() {return hardConcentrationFit;}
 	public void setHardConcentrationFit(Integer hardConcentrationFit) {
-		if(hardConcentrationFit != null && hardConcentrationFit > 0 && hardConcentrationFit < 100){
+		if(hardConcentrationFit != null && hardConcentrationFit >= 0 && hardConcentrationFit <= 100){
 			this.hardConcentrationFit = hardConcentrationFit;
 		} else this.hardConcentrationFit = null;
 	}
@@ -125,6 +133,29 @@ public class Movie {
 
 	public byte[] getMoviePicture() {return moviePicture;}
 	public void setMoviePicture(byte[] moviePicture) {this.moviePicture = moviePicture;}
+
+	public Integer getFamilyFit() {return familyFit; }
+	public void setFamilyFit(Integer familyFit) {this.familyFit = familyFit;}
+
+	public Integer getFriendsFit() {return friendsFit;}
+	public void setFriendsFit(Integer friendsFit) {this.friendsFit = friendsFit;}
+
+	public Integer getRomanticFit() {return romanticFit;}
+	public void setRomanticFit(Integer romanticFit) {this.romanticFit = romanticFit;}
+
+	/**
+	 * if not specified it's not important
+	 */
+	public Screen getOptimalScreen() {return optimalScreen != null ? optimalScreen : Screen.NOT_IMPORTANT;}
+	public void setOptimalScreen(Screen optimalScreen) {this.optimalScreen = optimalScreen;}
+
+	public Integer getOptimalInvestment() {return optimalInvestment;}
+	public void setOptimalInvestment(Integer optimalInvestment) {this.optimalInvestment = optimalInvestment;}
+
+	public Integer getOptimalEmotionality() {return optimalEmotionality;}
+	public void setOptimalEmotionality(Integer optimalEmotionality) {
+		this.optimalEmotionality = optimalEmotionality;
+	}
 
 	private Path getFallbackPath() {return fallback.toPath();}
 
@@ -176,5 +207,14 @@ public class Movie {
 
 	public boolean hasKeyword(Keyword.KeywordValue k) {
 		return ObjUtil.isContained(k, getKeywords().stream().map(Keyword::getKeyword).toArray(Keyword.KeywordValue[]::new));
+	}
+
+	public int getRelationshipFit(Relationship relationship) {
+		switch(relationship){
+			case FAMILY:	return getFamilyFit();
+			case ROMANTIC:	return getRomanticFit();
+			case PLATONIC: 	return getFriendsFit();
+			default: throw new IllegalArgumentException("Relationship not found for " + relationship);
+		}
 	}
 }

@@ -23,13 +23,16 @@ public class Keyword {
         this.keyword = keyword;
     }
 
+    public Keyword(Movie movie, KeywordValue keyword, int fit){
+        this(movie, keyword);
+        this.fit = fit;
+    }
+
     //Used by framework
     protected Keyword() {movie = null;keyword = null;}
 
     public static Keyword findKeyword(KeywordValue value, Set<Keyword> keywords) {
-        Keyword found = keywords.parallelStream().findAny().filter(k -> k.keyword == value).orElse(null);
-        //TODO: log if found == null
-        return found;
+        return keywords.parallelStream().findAny().filter(k -> k.keyword == value).orElse(null);
     }
 
     public int getFit() {return fit;}

@@ -32,7 +32,10 @@ public class MovieEditorPresenter extends VLayout {
         grid = new Grid<>(Movie.class);
         // build layout
         this.settings = ObjUtil.assertUniqueNotNull(settingsRepo.findAll());
-        addRadioButtons("Distance function:", settings::setDistanceFunction, settings.getDistanceFunction(), Settings.Distance.values());
+        VLayout settingsLayout = new VLayout(this);
+        settingsLayout.addRadioButtons("Distance function:", settings::setDistanceFunction, settings.getDistanceFunction(), Settings.Distance.values());
+        settingsLayout.addCheckbox("Concentration Fit allowed", settings::setConcentrationFit, settings.isConcentrationFit());
+        add(settingsLayout);
         HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn);
         add(actions, grid, editor);
 

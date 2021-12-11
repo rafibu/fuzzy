@@ -33,7 +33,6 @@ public class VLayout extends VerticalLayout implements ILayout{
         this.parent = parent;
     }
 
-    //TODO: rbu 04.11.2021, Maybe try to find another way
     public VLayout() {parent = null;}
 
     protected Span addTitle(String text){

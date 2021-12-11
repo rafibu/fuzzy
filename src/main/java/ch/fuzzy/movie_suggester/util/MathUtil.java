@@ -45,12 +45,16 @@ public class MathUtil {
         return Math.pow(i, 2);
     }
 
+    public static int sq(int i) {
+        return (int) sq((double) i);
+    }
+
     public static double assertPositive(double number) {
         assert number >= 0;
         return number;
     }
 
-    public static double euclidianDistance(double point1, double point2) {
+    public static double euclideanDistance(double point1, double point2) {
         return Math.sqrt(sq(point1)  + sq(point2));
     }
 }

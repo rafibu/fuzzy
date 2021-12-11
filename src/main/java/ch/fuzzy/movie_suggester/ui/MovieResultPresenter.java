@@ -22,14 +22,18 @@ public class MovieResultPresenter extends VLayout{
         MovieFilter filter = ComponentUtil.getData(UI.getCurrent(), MovieFilter.class);
         if(filter != null) lastFilter = filter;
         List<MovieResult> movies = MovieFinder.get().findMovies(lastFilter);
-        add(resultsLayout(movies));
-        //Grid for testing purposes -> shows more information
+        if(movies.size() > 0) {
+            add(resultsLayout(movies));
+            //Grid for testing purposes -> shows more information
 //        final Grid<MovieResult> grid = new Grid<>(MovieResult.class);
 //        grid.setHeight("300px");
 //        grid.setColumns("movie.id", "movie.title", "movie.description", "movie.genres", "movie.platforms", "movie.languages", "fit");
 //        grid.getColumnByKey("movie.id").setWidth("50px").setFlexGrow(0);
 //        grid.setItems(movies);
 //        add(grid);
+        } else {
+            addText("I'm Sorry, we don't have any Movie matching your description");
+        }
     }
 
     public VLayout resultsLayout(List<MovieResult> results){
@@ -48,7 +52,7 @@ public class MovieResultPresenter extends VLayout{
     public VLayout movieLayout(MovieResult result){
         Movie movie = result.getMovie();
         VLayout layout = new VLayout(this);
-        Image image = Movie.generateImage(movie, true); //TODO rounded Edges
+        Image image = Movie.generateImage(movie, true);
         image.addClickListener(event -> popUp(result.getMovie()).open());
         layout.add(image);
         layout.addTitle(movie.getTitle());

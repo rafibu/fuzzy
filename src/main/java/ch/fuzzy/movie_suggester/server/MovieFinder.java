@@ -7,8 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ch.fuzzy.movie_suggester.server.MovieFilter.Weight;
+import static ch.fuzzy.movie_suggester.server.Settings.Distance;
 
 public class MovieFinder {
 
@@ -44,7 +46,11 @@ public class MovieFinder {
         if(filter.getAgeRestriction() != null){
             movies = movies.stream().filter(m -> !filter.getAgeRestriction().restricts(m.getAgeRestriction())).collect(Collectors.toList());
         }
-        return movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
+        List<MovieResult> results = movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
+        if(results.size() > 20){
+            results = results.subList(0, 20);
+        }
+        return results;
     }
 
     /**
@@ -52,23 +58,35 @@ public class MovieFinder {
      * If possible all fuzzy variable (Genre, Watchers, Relationship, Keywords) are taken into account
      */
     private MovieResult fittingMovie(Movie movie, MovieFilter filter){
-        List<Integer> fits = new ArrayList<>();
-        if(filter.getGenres() != null && filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres(), filter.getGenreWeight())); }
-        if(filter.getNumberWatchers() != null || filter.getRelationship() != null){fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight())); }
-        if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords(), filter.getPositiveKeywordsWeight())); }
-        if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords(), filter.getNegativeKeywordsWeight())); }
-        int fit = calculateFinalFit(fits);
+        TupleList<Integer, Weight> fits = new TupleList<>();
+        Settings settings = ObjUtil.assertUniqueNotNull(settingsRepository.findAll());
+        if(filter.getGenres() != null && filter.getGenres().size() > 0){ fits.add(genreFit(movie, filter.getGenres(), filter.getGenreWeight(), settings.getDistanceFunction()), filter.getGenreWeight()); }
+        if(filter.getPositiveKeywords() != null){ fits.add(positiveKeywordFit(movie, filter.getPositiveKeywords(), filter.getPositiveKeywordsWeight(), settings.getDistanceFunction()), filter.getPositiveKeywordsWeight()); }
+        if(filter.getNegativeKeywords() != null){ fits.add(negativeKeywordFit(movie, filter.getNegativeKeywords(), filter.getNegativeKeywordsWeight(), settings.getDistanceFunction()), filter.getNegativeKeywordsWeight()); }
+        if(filter.getEmotionality() != null && movie.getOptimalEmotionality() != null){ fits.add(emotionalityFit(movie, filter.getEmotionality(), filter.getEmotionalityWeight()), filter.getEmotionalityWeight()); }
+        if(filter.getScreen() != null){ fits.add(screenFit(movie, filter.getScreen(), filter.getScreenWeight()), filter.getScreenWeight()); }
+
+        if(settings.isConcentrationFit()) {
+            if (filter.getNumberWatchers() != null || filter.getRelationship() != null) {
+                fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight()), filter.getRelationshipWeight());
+            }
+        } else {
+            if(filter.getNumberWatchers() != null){ fits.add(concentrationFit(movie, filter.getNumberWatchers(), null, filter.getNumberWatchersWeight(), null), filter.getNumberWatchersWeight()); }
+            if(filter.getRelationship() != null){ fits.add(relationshipFit(movie, filter.getRelationship(), filter.getRelationshipWeight()), filter.getRelationshipWeight() ); }
+            if(filter.getInvested() != null && movie.getOptimalInvestment() != null){ fits.add(investedFit(movie,filter.getInvested(), filter.getInvestedWeight()), filter.getInvestedWeight());}
+        }
+        int fit = calculateFinalFit(fits, settings.getDistanceFunction());
         return new MovieResult(movie, fit);
     }
 
-    private int calculateFinalFit(List<Integer> fits){
+    private int calculateFinalFit(TupleList<Integer, Weight> fits, Distance distanceFunction){
         if(fits.size() == 0){ return 100; } //return 100 for no filter
-        Settings settings = ObjUtil.assertUniqueNotNull(settingsRepository.findAll());
-        if(settings.getDistanceFunction()== Settings.Distance.L1){
-            return (fits.stream().mapToInt(f -> f).sum())/fits.size();
+        if(ObjUtil.isContained(distanceFunction, Distance.L1, Distance.L2_COMPLETE)){
+            //We just sum when using L2 Complete since we already used Euclidean Distance for each fit
+            return (int)((fits.stream().map(t -> t.first).mapToInt(f -> f).sum())/(fits.stream().map(t -> t.second).mapToDouble(this::factorFor).sum()));
         } else {
             //we assume L2 Distance if not otherwise specified
-            return (int)(Math.sqrt(fits.stream().mapToInt(f -> (int)MathUtil.sq(f)).sum()))/fits.size();
+            return (int)((Math.sqrt(fits.stream().map(t -> t.first).mapToInt(MathUtil::sq).sum()))/(fits.stream().map(t -> t.second).mapToDouble(this::factorFor).sum()));
         }
     }
 
@@ -86,7 +104,7 @@ public class MovieFinder {
         return (int)(factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * movie.getModerateConcentrationFit()); //If we don't know how many people there are we just take one of the fits
     }
 
-    private int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
+    int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
         switch (membership){
             case FEW: return numberWatchers <= 2 ? 100 : numberWatchers < 4 ? (100*(4-numberWatchers))/2 : 0;
             case MEDIUM:
@@ -101,24 +119,24 @@ public class MovieFinder {
 
     private double factorFor(MovieFilter.Weight weight){ return MovieFilter.Weight.getFactor(weight); }
 
-    private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres, MovieFilter.Weight genreWeight) {
+    private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres, Weight genreWeight, Distance distanceFunction) {
         int[] fits = genres.stream().mapToInt(movie::calculateGenreFit).toArray();
-        return (int) factorFor(genreWeight)*Arrays.stream(fits).sum()/fits.length;
+        return (int) (factorFor(genreWeight)* calculateDistance(fits, distanceFunction));
     }
 
-    private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords, MovieFilter.Weight weight) {
-        return (int) factorFor(weight) * 100 - positiveKeywordFit(movie, negativeKeywords, MovieFilter.Weight.NULL);
+    private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords, Weight weight, Distance distanceFunction) {
+        return (int) (factorFor(weight) * (100 - positiveKeywordFit(movie, negativeKeywords, MovieFilter.Weight.NULL, distanceFunction)));
     }
 
-    private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords, MovieFilter.Weight weight) {
+    private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords, Weight weight, Distance distanceFunction) {
         int[] overlaps = new int[positiveKeywords.size()];
         Iterator<Keyword.KeywordValue> values = positiveKeywords.stream().iterator();
         int i = 0;
         while(values.hasNext()){
             Keyword movieValue = Keyword.findKeyword(values.next(), movie.getKeywords());
-            overlaps[i++] = movieValue != null ? movieValue.getFit() : 0; //If no result found overlap is null
+            overlaps[i++] = movieValue != null ? movieValue.getFit() : 0; //If no result found overlap is 0
         }
-        return (int) factorFor(weight) *(Arrays.stream(overlaps).sum())/positiveKeywords.size();
+        return (int) (factorFor(weight) * calculateDistance(overlaps,  distanceFunction));
     }
 
     private Map<Concentration, Integer> peopleToConcentrationMap(Map<NumberPeople, Integer> numberPeopleMap) {
@@ -148,7 +166,7 @@ public class MovieFinder {
         return bestFit;
     }
 
-    private Integer calculateConcentrationFit(Concentration concentration, int numberWatchers, Relationship relationship, Map<NumberPeople, Integer> numberPeopleMap) {
+    Integer calculateConcentrationFit(Concentration concentration, int numberWatchers, Relationship relationship, Map<NumberPeople, Integer> numberPeopleMap) {
         switch (concentration){
             case LOW: {
                 if (relationship == Relationship.ROMANTIC && numberPeopleMap.get(NumberPeople.MANY) > 0) {
@@ -181,10 +199,117 @@ public class MovieFinder {
         }
     }
 
-    private enum NumberPeople {
-        FEW, MEDIUM, MANY;
+    private int calculateDistance(int[] values, Settings.Distance distanceFunction){
+        if(distanceFunction == Distance.L2_COMPLETE){
+            return (int) Math.sqrt(Arrays.stream(values).map(MathUtil::sq).sum())/values.length;
+        } else {
+            return (Arrays.stream(values).sum())/values.length;
+        }
+    }
+
+
+    private Integer relationshipFit(Movie movie, Relationship relationship, Weight relationshipWeight) {
+        int movieFit = movie.getRelationshipFit(relationship);
+        return (int) (factorFor(relationshipWeight) * movieFit);
+    }
+
+    private Integer emotionalityFit(Movie movie, Integer emotionalityFit, Weight weight){
+        int movieFit = movie.getOptimalEmotionality();
+        return (int) (factorFor(weight) * (100 - Math.abs(movieFit - emotionalityFit)));
+    }
+
+    private Integer investedFit(Movie movie, Integer invested, Weight investedWeight) {
+        int movieFit = movie.getOptimalInvestment();
+        return (int) (factorFor(investedWeight) * (100 - Math.abs(movieFit - invested)));
+    }
+
+
+    private Integer screenFit(Movie movie, Screen screen, Weight weight) {
+        return (int)(factorFor(weight) * findScreenFit(movie, screen));
+    }
+    private Integer findScreenFit(Movie movie, Screen screen){
+        switch (movie.getOptimalScreen()){
+            case NOT_IMPORTANT: return 100; //all are equally valid
+            case PHONE:
+                switch (screen){
+                    case PHONE: return 100;
+                    case TV:    return 50;
+                    case CINEMA:return 25;
+                    case IMAX:  return 0;
+                }
+            case TV:
+                switch (screen){
+                    case PHONE: return 50;
+                    case TV:    return 100;
+                    case CINEMA:return 75;
+                    case IMAX:  return 50;
+                }
+            case CINEMA:
+                switch (screen){
+                    case PHONE: return 25;
+                    case TV:    return 50;
+                    case CINEMA:return 100;
+                    case IMAX:  return 75;
+                }
+            case IMAX:
+                switch (screen){
+                    case PHONE: return 0;
+                    case TV:    return 25;
+                    case CINEMA:return 75;
+                    case IMAX:  return 100;
+                }
+            default: throw new IllegalArgumentException("No Fit defined for Screen size " + screen);
+        }
+    }
+
+
+    public enum NumberPeople {
+        FEW, MEDIUM, MANY
     }
     enum Concentration {
-        LOW, MODERATE, HARD;
+        LOW, MODERATE, HARD
+    }
+
+    //We do not implement list as most of the functionality isn't needed
+    private static class TupleList<T, K> {
+        List<Tuple<T, K>> list;
+
+        TupleList(){
+            this.list = new ArrayList<>();
+        }
+
+        private boolean add(T t, K k){
+            return list.add(new Tuple<>(t, k));
+        }
+
+        private Tuple<T, K> remove(int i){
+            return list.remove(i);
+        }
+
+        private boolean remove(Tuple<T, K> t){
+            return list.remove(t);
+        }
+
+        private Tuple<T, K> get(int i){
+            return list.get(i);
+        }
+
+        private int size(){
+            return list.size();
+        }
+
+        private Stream<Tuple<T, K>> stream(){
+            return list.stream();
+        }
+
+        private static class Tuple<T, K> {
+            private final T first;
+            private final K second;
+
+            Tuple(T first, K second) {
+                this.first = first;
+                this.second = second;
+            }
+        }
     }
 }

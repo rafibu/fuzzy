@@ -1,8 +1,10 @@
 package ch.fuzzy.movie_suggester.ui;
 
 import ch.fuzzy.movie_suggester.server.*;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -30,7 +32,7 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
      */
     private Movie movie;
 
-    private HLayout panel;
+    private VLayout panel;
 
     /* Action buttons */
     Button save = new Button("Save", VaadinIcon.CHECK.create());
@@ -46,7 +48,7 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
         super();
         this.repository = repository;
 
-        add(panel = new HLayout(this));
+        add(panel = new VLayout(this));
         // Configure and style components
         setSpacing(true);
 
@@ -62,35 +64,63 @@ public class MovieEditorPanel extends VLayout implements KeyNotifier {
         setVisible(false);
     }
 
-    private HLayout renderMovie() {
-        HLayout panel = new HLayout(this);
+    private VLayout renderMovie() {
+        VLayout panel = new VLayout(this);
+        HLayout firstRow = new HLayout(panel);
 
-        VLayout firstRow = new VLayout(this);
-        firstRow.add(actions);
-        firstRow.addTextfield("Title", movie::setTitle, movie.getTitle());
-        firstRow.addTextArea("Description", movie::setDescription, movie.getDescription());
+        VLayout firstColumn = new VLayout(firstRow);
+        firstColumn.add(actions);
+        firstColumn.addTextfield("Title", movie::setTitle, movie.getTitle());
+        firstColumn.addTextArea("Description", movie::setDescription, movie.getDescription());
+        Button startBotBtn = new Button("Fill with Bot");
+        startBotBtn.addClickListener(c -> gotoBot(movie));
+        firstColumn.add(startBotBtn);
 
-        VLayout secondRow = new VLayout(this);
-        secondRow.addSelect("Age Restriction", movie::setAgeRestriction, movie.getAgeRestriction(), AgeRestriction.values());
-        secondRow.addMultiSelect(movie::setLanguages, movie.getLanguages(), Language.values());
-        secondRow.addMultiSelect(movie::setPlatforms, movie.getPlatforms(), Platform.values());
+        VLayout secondColumn = new VLayout(firstRow);
+        secondColumn.addSelect("Age Restriction", movie::setAgeRestriction, movie.getAgeRestriction(), AgeRestriction.values());
+        secondColumn.addMultiSelect(movie::setLanguages, movie.getLanguages(), Language.values());
+        secondColumn.addMultiSelect(movie::setPlatforms, movie.getPlatforms(), Platform.values());
 
-        VLayout thirdRow = new VLayout(this);
-        thirdRow.addIntegerField("Low Concentration Fit", movie::setLowConcentrationFit, movie.getLowConcentrationFit(), true, 0, 100, 1);
-        thirdRow.addIntegerField("Moderate Concentration Fit", movie::setModerateConcentrationFit, movie.getModerateConcentrationFit(), true, 0, 100, 1);
-        thirdRow.addIntegerField("Hard Concentration Fit", movie::setHardConcentrationFit, movie.getHardConcentrationFit(), true, 0, 100, 1);
+        VLayout thirdColumn = new VLayout(firstRow);
+        thirdColumn.addIntegerField("Low Concentration Fit", movie::setLowConcentrationFit, movie.getLowConcentrationFit(), true, 0, 100, 1);
+        thirdColumn.addIntegerField("Moderate Concentration Fit", movie::setModerateConcentrationFit, movie.getModerateConcentrationFit(), true, 0, 100, 1);
+        thirdColumn.addIntegerField("Hard Concentration Fit", movie::setHardConcentrationFit, movie.getHardConcentrationFit(), true, 0, 100, 1);
 
-        VLayout fourthRow = new VLayout(this);
-        fourthRow.add(new MovieGenrePanel(this));
+        VLayout fourthColumn = new VLayout(firstRow);
+        fourthColumn.addIntegerField("Romantic Fit", movie::setRomanticFit, movie.getRomanticFit(), true, 0, 100, 1);
+        fourthColumn.addIntegerField("Family Fit", movie::setFamilyFit, movie.getFamilyFit(), true, 0, 100, 1);
+        fourthColumn.addIntegerField("Friends Fit", movie::setFriendsFit, movie.getFriendsFit(), true, 0, 100, 1);
 
-        VLayout fifthRow = new VLayout(this);
-        fifthRow.add(new MovieKeywordPanel(this));
 
-        VLayout sixthRow = new VLayout(this);
-        initUploaderImage(sixthRow);
+        VLayout fifthColumn = new VLayout(firstRow);
+        fifthColumn.addIntegerField("Optimal Emotionality Fit", movie::setOptimalEmotionality, movie.getOptimalEmotionality(), true, 0, 100, 1);
+        fifthColumn.addIntegerField("Optimal Investment Fit", movie::setOptimalInvestment, movie.getOptimalInvestment(), true, 0, 100, 1);
+        fifthColumn.addSelect("Optimal Screen Fit", movie::setOptimalScreen, movie.getOptimalScreen(), Screen.values());
 
-        panel.add(firstRow, secondRow, thirdRow, fourthRow, fifthRow, sixthRow);
+
+
+        VLayout sixthColumn = new VLayout(firstRow);
+        initUploaderImage(sixthColumn);
+
+        firstRow.add(firstColumn, secondColumn, thirdColumn, fourthColumn, fifthColumn, sixthColumn);
+
+        HLayout secondRow = new HLayout(panel);
+
+        VLayout columnOne = new VLayout(secondRow);
+        columnOne.add(new MovieGenrePanel(this));
+
+        VLayout columnTwo = new VLayout(secondRow);
+        columnTwo.add(new MovieKeywordPanel(this));
+
+        secondRow.add(columnOne, columnTwo);
+
+        panel.add(firstRow, secondRow);
         return panel;
+    }
+
+    private void gotoBot(Movie movie){
+            ComponentUtil.setData(UI.getCurrent(), Movie.class, movie);
+            UI.getCurrent().navigate(MovieEditBotPresenter.class);
     }
 
     void delete() {
