@@ -5,6 +5,7 @@ import ch.fuzzy.movie_suggester.util.ObjUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,11 +69,11 @@ public class MovieFinder {
 
         if(settings.isConcentrationFit()) {
             if (filter.getNumberWatchers() != null || filter.getRelationship() != null) {
-                fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight()), filter.getRelationshipWeight());
+                fits.add(concentrationFit(movie, filter.getNumberWatchers(), filter.getRelationship(), filter.getNumberWatchersWeight(), filter.getRelationshipWeight()), filter.getRelationshipWeight(), filter.getNumberWatchersWeight());
             }
         } else {
             if(filter.getNumberWatchers() != null){ fits.add(concentrationFit(movie, filter.getNumberWatchers(), null, filter.getNumberWatchersWeight(), null), filter.getNumberWatchersWeight()); }
-            if(filter.getRelationship() != null){ fits.add(relationshipFit(movie, filter.getRelationship(), filter.getRelationshipWeight()), filter.getRelationshipWeight() ); }
+            if(filter.getRelationship() != null){ fits.add(relationshipFit(movie, filter.getRelationship(), filter.getRelationshipWeight()), filter.getRelationshipWeight()); }
             if(filter.getInvested() != null && movie.getOptimalInvestment() != null){ fits.add(investedFit(movie,filter.getInvested(), filter.getInvestedWeight()), filter.getInvestedWeight());}
         }
         int fit = calculateFinalFit(fits, settings.getDistanceFunction());
@@ -83,10 +84,10 @@ public class MovieFinder {
         if(fits.size() == 0){ return 100; } //return 100 for no filter
         if(ObjUtil.isContained(distanceFunction, Distance.L1, Distance.L2_COMPLETE)){
             //We just sum when using L2 Complete since we already used Euclidean Distance for each fit
-            return (int)((fits.stream().map(t -> t.first).mapToInt(f -> f).sum())/(fits.stream().map(t -> t.second).mapToDouble(this::factorFor).sum()));
+            return (int)(fits.stream().map(t -> t.first).mapToInt(f -> f).sum()/fits.stream().mapToDouble(t -> t.seconds().mapToDouble(this::factorFor).sum()).sum());
         } else {
             //we assume L2 Distance if not otherwise specified
-            return (int)((Math.sqrt(fits.stream().map(t -> t.first).mapToInt(MathUtil::sq).sum()))/(fits.stream().map(t -> t.second).mapToDouble(this::factorFor).sum()));
+            return (int)(100*Math.sqrt(fits.stream().map(t -> t.first).mapToInt(MathUtil::sq).sum()/fits.stream().map(t -> 100*t.seconds().mapToDouble(this::factorFor).sum()).mapToDouble(MathUtil::sq).sum()));
         }
     }
 
@@ -117,7 +118,14 @@ public class MovieFinder {
         }
     }
 
-    private double factorFor(MovieFilter.Weight weight){ return MovieFilter.Weight.getFactor(weight); }
+    private double factorFor(Weight... weights){
+        if(weights.length == 0) return 1;
+        double res = 0;
+        for(Weight w: weights){
+            res += Weight.getFactor(w);
+        }
+        return res/weights.length;
+    }
 
     private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres, Weight genreWeight, Distance distanceFunction) {
         int[] fits = genres.stream().mapToInt(movie::calculateGenreFit).toArray();
@@ -201,9 +209,9 @@ public class MovieFinder {
 
     private int calculateDistance(int[] values, Settings.Distance distanceFunction){
         if(distanceFunction == Distance.L2_COMPLETE){
-            return (int) Math.sqrt(Arrays.stream(values).map(MathUtil::sq).sum())/values.length;
+            return (int) Math.sqrt(Arrays.stream(values).mapToDouble(MathUtil::sq).sum()/values.length);
         } else {
-            return (Arrays.stream(values).sum())/values.length;
+            return (Arrays.stream(values).sum()/values.length);
         }
     }
 
@@ -281,6 +289,7 @@ public class MovieFinder {
         private boolean add(T t, K k){
             return list.add(new Tuple<>(t, k));
         }
+        private boolean add(T t, K... k){return list.add(new Tuple<>(t, k));}
 
         private Tuple<T, K> remove(int i){
             return list.remove(i);
@@ -302,13 +311,48 @@ public class MovieFinder {
             return list.stream();
         }
 
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("TupleList{\n");
+            for(Tuple<T,K> t: list){
+                sb.append(t.toString()).append("\n");
+            }
+            return sb.toString() + '}';
+        }
+
         private static class Tuple<T, K> {
             private final T first;
             private final K second;
 
+            private final boolean hasMultipleSecond;
+            private K[] multipleSeconds;
+
             Tuple(T first, K second) {
                 this.first = first;
                 this.second = second;
+                hasMultipleSecond = false;
+            }
+
+            //hack: rbu 13.12.2021, needed for Concentrationfit, should get a better solution when possible
+            Tuple(T first, K... second) {
+                this.first = first;
+                this.second = null;
+                this.hasMultipleSecond = true;
+                this.multipleSeconds = second;
+            }
+
+            @Override
+            public String toString() {
+                       return "(" + first + ", " + second + ")";}
+
+            public Stream<K> seconds() {
+                if(hasMultipleSecond){
+                    return Arrays.stream(multipleSeconds);
+                } else {
+                    List<K> list = new ArrayList<>();
+                    list.add(second);
+                    return list.stream();
+                }
             }
         }
     }

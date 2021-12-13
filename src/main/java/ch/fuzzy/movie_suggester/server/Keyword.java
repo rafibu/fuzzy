@@ -32,7 +32,8 @@ public class Keyword {
     protected Keyword() {movie = null;keyword = null;}
 
     public static Keyword findKeyword(KeywordValue value, Set<Keyword> keywords) {
-        return keywords.parallelStream().findAny().filter(k -> k.keyword == value).orElse(null);
+        for(Keyword k: keywords){ if(k.keyword == value) return k; }
+        return null;
     }
 
     public int getFit() {return fit;}

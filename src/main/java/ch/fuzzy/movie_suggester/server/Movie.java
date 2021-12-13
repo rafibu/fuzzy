@@ -211,10 +211,14 @@ public class Movie {
 
 	public int getRelationshipFit(Relationship relationship) {
 		switch(relationship){
-			case FAMILY:	return getFamilyFit();
-			case ROMANTIC:	return getRomanticFit();
-			case PLATONIC: 	return getFriendsFit();
+			case FAMILY:	return intFit(getFamilyFit());
+			case ROMANTIC:	return intFit(getRomanticFit());
+			case PLATONIC: 	return intFit(getFriendsFit());
 			default: throw new IllegalArgumentException("Relationship not found for " + relationship);
 		}
+	}
+
+	private static int intFit(Integer integer){
+		return integer != null ? integer : 0;
 	}
 }

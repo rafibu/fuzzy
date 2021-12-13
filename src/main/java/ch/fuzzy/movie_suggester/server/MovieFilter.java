@@ -121,7 +121,7 @@ public class MovieFilter {
         DNEGATIVE("--", 0.25),
         NEGATIVE("-", 0.5),
         NULL("0", 1),
-        POSITVE("+", 2),
+        POSITIVE("+", 2),
         DPOSITIVE("++", 4);
 
         private final String name;
