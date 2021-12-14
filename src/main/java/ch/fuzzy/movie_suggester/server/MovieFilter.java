@@ -43,7 +43,7 @@ public class MovieFilter {
     public MovieFilter(){
         this.platforms = new HashSet<>();
         this.genres = new HashSet<>();
-        numberWatchers = 1; //Default
+//        numberWatchers = 1; //Default
     }
 
     public Collection<Genre.GenreType> getGenres() {return genres;}

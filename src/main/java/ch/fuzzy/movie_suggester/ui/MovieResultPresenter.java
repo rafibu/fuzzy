@@ -52,6 +52,7 @@ public class MovieResultPresenter extends VLayout{
     public VLayout movieLayout(MovieResult result){
         Movie movie = result.getMovie();
         VLayout layout = new VLayout(this);
+        layout.getElement().getStyle().set("width", "220px");
         Image image = Movie.generateImage(movie, true);
         image.addClickListener(event -> popUp(result.getMovie()).open());
         layout.add(image);

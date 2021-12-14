@@ -30,7 +30,8 @@ public class Settings {
     public enum Distance implements IFilterElement{
         L2("L2"),
         L1("L1"),
-        L2_COMPLETE("L2 on all fits");
+        L2_ONLY_ON_FITS("L2 only on Fits"),
+        L2_COMPLETE("L2 on Fits and Final Calculation");
 
         private final String name;
 

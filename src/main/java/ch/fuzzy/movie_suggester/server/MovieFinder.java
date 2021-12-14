@@ -5,7 +5,6 @@ import ch.fuzzy.movie_suggester.util.ObjUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,8 +47,8 @@ public class MovieFinder {
             movies = movies.stream().filter(m -> !filter.getAgeRestriction().restricts(m.getAgeRestriction())).collect(Collectors.toList());
         }
         List<MovieResult> results = movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
-        if(results.size() > 20){
-            results = results.subList(0, 20);
+        if(results.size() > 24){
+            results = results.subList(0, 24);
         }
         return results;
     }
@@ -82,13 +81,14 @@ public class MovieFinder {
 
     private int calculateFinalFit(TupleList<Integer, Weight> fits, Distance distanceFunction){
         if(fits.size() == 0){ return 100; } //return 100 for no filter
-        if(ObjUtil.isContained(distanceFunction, Distance.L1, Distance.L2_COMPLETE)){
+        if(ObjUtil.isContained(distanceFunction, Distance.L1, Distance.L2_ONLY_ON_FITS)){
             //We just sum when using L2 Complete since we already used Euclidean Distance for each fit
             return (int)(fits.stream().map(t -> t.first).mapToInt(f -> f).sum()/fits.stream().mapToDouble(t -> t.seconds().mapToDouble(this::factorFor).sum()).sum());
-        } else {
+        } else if(ObjUtil.isContained(distanceFunction, Distance.L2, Distance.L2_COMPLETE)){
             //we assume L2 Distance if not otherwise specified
             return (int)(100*Math.sqrt(fits.stream().map(t -> t.first).mapToInt(MathUtil::sq).sum()/fits.stream().map(t -> 100*t.seconds().mapToDouble(this::factorFor).sum()).mapToDouble(MathUtil::sq).sum()));
         }
+        throw new IllegalArgumentException(ObjUtil.toString(distanceFunction) + "Not implemented");
     }
 
     private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship, Weight numberWatchersWeight, Weight relationshipWeight) {
@@ -208,7 +208,7 @@ public class MovieFinder {
     }
 
     private int calculateDistance(int[] values, Settings.Distance distanceFunction){
-        if(distanceFunction == Distance.L2_COMPLETE){
+        if(ObjUtil.isContained(distanceFunction, Distance.L2_ONLY_ON_FITS, Distance.L2_COMPLETE)){
             return (int) Math.sqrt(Arrays.stream(values).mapToDouble(MathUtil::sq).sum()/values.length);
         } else {
             return (Arrays.stream(values).sum()/values.length);
