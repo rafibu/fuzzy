@@ -18,6 +18,7 @@ public class MainView extends VerticalLayout {
 		Button movieEditBtn = new Button("Edit Movies");
 		movieEditBtn.addClickListener(e -> UI.getCurrent().navigate(MovieEditorPresenter.class));
 		add(movieEditBtn);
+		movieEditBtn.setVisible(false);
 		add(new MovieFilterBotPresenter(settingsRepo));
 	}
 }
