@@ -69,9 +69,11 @@ public class MovieResultPresenter extends VLayout{
         layout.add(Movie.generateImage(movie, true));
         layout.addTitle(movie.getTitle());
         layout.addSpan(movie.getDescription());
-        layout.addSpan("Genres: " + ObjUtil.toString(movie.getGenres()));
-        layout.addSpan("Age Restriction: " + ObjUtil.toString(movie.getAgeRestriction()));
-        layout.addSpan("Available on " + ObjUtil.toString(movie.getPlatforms()));
+        if(movie.getGenres() != null && movie.getGenres().size() > 0) {
+            layout.addSpan("Genres: " + ObjUtil.toString(movie.getGenres()));
+        }
+        layout.addSpan("Age Restriction: " + (movie.getAgeRestriction() != null ? ObjUtil.toString(movie.getAgeRestriction()): "None"));
+        layout.addSpan("Available on " + (movie.getPlatforms() != null && movie.getPlatforms().size() > 0 ? ObjUtil.toString(movie.getPlatforms()): "no known Platform"));
         Dialog dialog = new Dialog(layout);
         dialog.setMaxHeight("700px");
         dialog.setMaxWidth("500px");

@@ -49,7 +49,7 @@ public class MovieFinder {
         if(filter.getAgeRestriction() != null){
             movies = movies.stream().filter(m -> !filter.getAgeRestriction().restricts(m.getAgeRestriction())).collect(Collectors.toList());
         }
-        List<MovieResult> results = movies.stream().map(m -> fittingMovie(m, filter)).sorted().collect(Collectors.toList());
+        List<MovieResult> results = movies.stream().map(m -> fittingMovie(m, filter)).filter(f -> f.getFit() > 0).sorted().collect(Collectors.toList());
         if(results.size() > 24){
             results = results.subList(0, 24);
         }
