@@ -5,6 +5,7 @@ import java.util.Set;
 
 /**
  * Keywords which a {@link Movie} describe including how well they fit the movie
+ * @author rbu
  */
 @Entity
 public class Keyword {

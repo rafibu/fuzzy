@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 /**
  * Global settings of the application
+ * @author rbu
  */
 @Entity
 public class Settings {

@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 /**
  * Represents a Filter which can be used to find matching {@link Movie} objects
+ * @author rbu
  */
 public class MovieFilter {
 

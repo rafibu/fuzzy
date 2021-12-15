@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  * Utility class for Objects
+ *  @author rbu
  */
 public class ObjUtil {
 

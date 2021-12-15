@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 /**
  * Vertical Layout which implements our own add Functions
+ * @author rbu
  */
 @CssImport("./themes/page_style.css")
 @CssImport(value = "./themes/filter_elements.css", themeFor = "vaadin-*")

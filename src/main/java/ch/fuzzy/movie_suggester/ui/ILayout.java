@@ -2,6 +2,7 @@ package ch.fuzzy.movie_suggester.ui;
 
 /**
  * Interface for Base Layouts
+ * @author rbu
  */
 public interface ILayout {
 

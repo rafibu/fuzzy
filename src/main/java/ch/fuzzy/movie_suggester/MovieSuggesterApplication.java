@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * Main Class which starts the Application
+ * @author rbu
  */
 @SpringBootApplication
 public class MovieSuggesterApplication {

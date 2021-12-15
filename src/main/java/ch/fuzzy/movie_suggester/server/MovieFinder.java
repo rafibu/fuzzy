@@ -14,6 +14,7 @@ import static ch.fuzzy.movie_suggester.server.Settings.Distance;
 
 /**
  * The MovieFinder calculates how well a {@link Movie} fits for a given {@link MovieFilter}
+ * @author rbu
  */
 public class MovieFinder {
 
@@ -35,6 +36,11 @@ public class MovieFinder {
         this.settingsRepository = settingsRepository;
     }
 
+    /**
+     * Creates a List of {@link MovieResult results} of max. 24 elements which indicate how much they overlap with the given filter
+     * @param filter the {@link MovieFilter filter} given by the user to find {@link Movie movies}
+     * @return a list of distinct {@link MovieResult movie results} of size max. 24. Movies with an overlap of 0 are not shown
+     */
     public List<MovieResult> findMovies(MovieFilter filter){
         if(filter == null) return new ArrayList<>(); //NOTE: rbu 29.10.2021, should only be the case if we go directly to the corresponding URL
         List<Movie> movies;
@@ -57,8 +63,11 @@ public class MovieFinder {
     }
 
     /**
-     * We calculate how much a {@code filter} fits into a {@code movie}
-     * If possible all fuzzy variable (Genre, Watchers, Relationship, Keywords) are taken into account
+     * We calculate how much a {@link MovieFilter filter} fits into a {@link Movie movie}
+     * All fuzzy variables ({@link Genre}, Watchers, {@link Relationship}, {@link Keyword Keywords}) which were set by the filter are taken into account
+     * If the {@link Settings setting} {@link Settings#isConcentrationFit()} is true we calculate the numberWatchers Fit with the relationshipFit
+     * if this flag isn't set we calculate the two fits separately, in this case the question about investment is also asked the user which will give a Fit as well
+     * @return a {@link Movie} with its fit
      */
     private MovieResult fittingMovie(Movie movie, MovieFilter filter){
         TupleList<Integer, Weight> fits = new TupleList<>();
@@ -82,10 +91,16 @@ public class MovieFinder {
         return new MovieResult(movie, fit);
     }
 
+    /**
+     * This function calculates the final fit according to the given distance function.
+     * @param fits all Fits calculated represented as a Tuple of the Fit and its weight
+     * @param distanceFunction The distance function defined by the settings which should be used to calculate the distance
+     * @return a number between 0 and 100 which represents the average of all fits according to the distance function
+     */
     private int calculateFinalFit(TupleList<Integer, Weight> fits, Distance distanceFunction){
         if(fits.size() == 0){ return 100; } //return 100 for no filter
         if(ObjUtil.isContained(distanceFunction, Distance.L1, Distance.L2_ONLY_ON_FITS)){
-            //We just sum when using L2 Complete since we already used Euclidean Distance for each fit
+            //We just sum when using L2_ONLY_ON_FITS since we already used Euclidean Distance for each fit
             return (int)(fits.stream().map(t -> t.first).mapToInt(f -> f).sum()/fits.stream().mapToDouble(t -> t.seconds().mapToDouble(this::factorFor).sum()).sum());
         } else if(ObjUtil.isContained(distanceFunction, Distance.L2, Distance.L2_COMPLETE)){
             //we assume L2 Distance if not otherwise specified
@@ -94,6 +109,9 @@ public class MovieFinder {
         throw new IllegalArgumentException(ObjUtil.toString(distanceFunction) + "Not implemented");
     }
 
+    /**
+     * This function takes the {@link Relationship relationship} as well as the number of Watchers into account and calculates a fit for those
+     */
     private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship, Weight numberWatchersWeight, Weight relationshipWeight) {
         if (numberWatchers != null) {
             Map<NumberPeople, Integer> numberPeopleMap = new HashMap<>();
@@ -109,6 +127,10 @@ public class MovieFinder {
         return relationshipFit(movie, relationship, relationshipWeight);
     }
 
+    /**
+     * Step function for the fit of the number of watchers for the given {@link NumberPeople membership}
+     * @return a fit for the number of people watching to a certain membership
+     */
     int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
         switch (membership){
             case FEW: return numberWatchers <= 2 ? 100 : numberWatchers < 4 ? (100*(4-numberWatchers))/2 : 0;
@@ -122,6 +144,9 @@ public class MovieFinder {
         }
     }
 
+    /**
+     * Convenience function to get the factor for a number of weights. Just gives the average over all {@link Weight weight} factors
+     */
     private double factorFor(Weight... weights){
         if(weights.length == 0) return 1;
         double res = 0;
@@ -131,15 +156,28 @@ public class MovieFinder {
         return res/weights.length;
     }
 
+    /**
+     * Calculates the fit for a {@link Genre genres} given. If a {@link Genre genre} isn't present in a {@link Movie movie} the fit is 0% otherwise the fit is as defined in the {@link Movie movie}
+     * After receiving all fits we calculate the distance of all genres according to the {@link Distance distance function} and multiply them by the {@link Weight weight}
+     */
     private Integer genreFit(Movie movie, Collection<Genre.GenreType> genres, Weight genreWeight, Distance distanceFunction) {
         int[] fits = genres.stream().mapToInt(movie::calculateGenreFit).toArray();
         return (int) (factorFor(genreWeight)* calculateDistance(fits, distanceFunction));
     }
 
+    /**
+     * Calculates the Fit for given negative {@link Keyword keywords} of a filter.
+     * The fit is exactly opposite to the {@link #positiveKeywordFit(Movie, Collection, Weight, Distance)}
+     */
     private Integer negativeKeywordFit(Movie movie, Collection<Keyword.KeywordValue> negativeKeywords, Weight weight, Distance distanceFunction) {
         return (int) (factorFor(weight) * (100 - positiveKeywordFit(movie, negativeKeywords, MovieFilter.Weight.NULL, distanceFunction)));
     }
 
+    /**
+     * Calculates the Fit for given positive {@link Keyword keywords} of a {@link MovieFilter filter}.
+     * It tries to find each {@link Keyword keyword} in a movie, if it isn't present the fit is 0%, otherwise as specified in the {@link Movie movie}
+     * After receiving all fits we calculate the distance of all {@link Keyword keywords} according to the {@link Distance distance function} and multiply them by the {@link Weight weight}
+     */
     private Integer positiveKeywordFit(Movie movie, Collection<Keyword.KeywordValue> positiveKeywords, Weight weight, Distance distanceFunction) {
         int[] overlaps = new int[positiveKeywords.size()];
         Iterator<Keyword.KeywordValue> values = positiveKeywords.stream().iterator();
@@ -151,6 +189,10 @@ public class MovieFinder {
         return (int) (factorFor(weight) * calculateDistance(overlaps,  distanceFunction));
     }
 
+    /**
+     * Simply maps the {@link NumberPeople Number of People} to their {@link Concentration} counterpart
+     * is only used for the {@link #concentrationFit(Movie, Integer, Relationship, Weight, Weight)} function when no {@link Relationship} is given
+     */
     private Map<Concentration, Integer> peopleToConcentrationMap(Map<NumberPeople, Integer> numberPeopleMap) {
         Map<Concentration, Integer> concentrationMap = new HashMap<>();
         for(NumberPeople number: numberPeopleMap.keySet()){
@@ -163,6 +205,9 @@ public class MovieFinder {
         return concentrationMap;
     }
 
+    /**
+     * returns the fit with the smallest distance out of a Map
+     */
     private Integer bestFit(Movie movie, Map<Concentration, Integer> concentrationMap) {
         int distance = Integer.MAX_VALUE;
         int bestFit = 0;
@@ -178,6 +223,9 @@ public class MovieFinder {
         return bestFit;
     }
 
+    /**
+     * Calculates the concentration fit for {@link #concentrationFit(Movie, Integer, Relationship, Weight, Weight)}  if the {@link Relationship} as well as the number of People is given by the filter
+     */
     Integer calculateConcentrationFit(Concentration concentration, int numberWatchers, Relationship relationship, Map<NumberPeople, Integer> numberPeopleMap) {
         switch (concentration){
             case LOW: {
@@ -211,6 +259,10 @@ public class MovieFinder {
         }
     }
 
+    /**
+     * Function to calculate the distance of a number of values according to the given {@link Distance distance function}
+     * Is only used for calculating distances in single fits NOT by the final Fit
+     */
     private int calculateDistance(int[] values, Settings.Distance distanceFunction){
         if(ObjUtil.isContained(distanceFunction, Distance.L2_ONLY_ON_FITS, Distance.L2_COMPLETE)){
             return (int) Math.sqrt(Arrays.stream(values).mapToDouble(MathUtil::sq).sum()/values.length);
@@ -219,23 +271,33 @@ public class MovieFinder {
         }
     }
 
-
+    /**
+     * Calculates the fit multiplied by its {@link Weight weight} for the {@link Relationship}
+     */
     private Integer relationshipFit(Movie movie, Relationship relationship, Weight relationshipWeight) {
         int movieFit = movie.getRelationshipFit(relationship);
         return (int) (factorFor(relationshipWeight) * movieFit);
     }
 
+    /**
+     * Calculates the fit for the emotionality, it uses the absolut distance between the {@link Movie movies} fit and the one given by the {@link MovieFilter filter}
+     */
     private Integer emotionalityFit(Movie movie, Integer emotionalityFit, Weight weight){
         int movieFit = movie.getOptimalEmotionality();
         return (int) (factorFor(weight) * (100 - Math.abs(movieFit - emotionalityFit)));
     }
 
+    /**
+     * Calculates the fit for the investment a watcher should give, it uses the absolut distance between the {@link Movie movies} fit and the one given by the {@link MovieFilter filter}
+     */
     private Integer investedFit(Movie movie, Integer invested, Weight investedWeight) {
         int movieFit = movie.getOptimalInvestment();
         return (int) (factorFor(investedWeight) * (100 - Math.abs(movieFit - invested)));
     }
 
-
+    /**
+     * Calculates the {@link Screen screen} fit of a {@link MovieFilter filter} through a step function
+     */
     private Integer screenFit(Movie movie, Screen screen, Weight weight) {
         return (int)(factorFor(weight) * findScreenFit(movie, screen));
     }
@@ -281,8 +343,10 @@ public class MovieFinder {
     enum Concentration {
         LOW, MODERATE, HARD
     }
-
-    //We do not implement list as most of the functionality isn't needed
+    /**
+     * A list containing a {@link Tuple tuple} of two elements, can be used similar to a normal list
+     * We do not implement list as most of the functionality isn't needed
+     */
     private static class TupleList<T, K> {
         List<Tuple<T, K>> list;
 
@@ -324,9 +388,13 @@ public class MovieFinder {
             return sb.toString() + '}';
         }
 
+        /**
+         * Represents a Tuple with two different objects
+         * Has currently a Hack where more than one of the second elements can be given to the Tuple, this however should be used with caution!!
+         */
         private static class Tuple<T, K> {
-            private final T first;
-            private final K second;
+            public final T first;
+            public final K second;
 
             private final boolean hasMultipleSecond;
             private K[] multipleSeconds;
@@ -337,7 +405,7 @@ public class MovieFinder {
                 hasMultipleSecond = false;
             }
 
-            //hack: rbu 13.12.2021, needed for Concentrationfit, should get a better solution when possible
+            //hack: rbu 13.12.2021, needed for #ConcentrationFit(), should get a better solution when possible
             Tuple(T first, K... second) {
                 this.first = first;
                 this.second = null;

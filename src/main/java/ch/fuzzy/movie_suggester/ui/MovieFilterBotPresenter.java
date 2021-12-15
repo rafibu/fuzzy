@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 /**
  * The Bot which a user needs to create a {@link MovieFilter}
+ * @author rbu
  */
 public class MovieFilterBotPresenter extends VLayout{
 

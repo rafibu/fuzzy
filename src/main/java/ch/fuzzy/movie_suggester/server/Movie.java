@@ -16,6 +16,7 @@ import java.util.Set;
 
 /**
  * Represents a Movie Instance with all important data
+ * @author rbu
  */
 @Entity
 public class Movie {

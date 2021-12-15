@@ -7,6 +7,7 @@ import java.util.Set;
 
 /**
  * Utility class for simple recurring mathematical functions
+ * @author rbu
  */
 public class MathUtil {
 

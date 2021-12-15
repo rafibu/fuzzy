@@ -36,6 +36,7 @@ import java.util.function.Consumer;
  * Combines all implementations of inputfields for the {@link com.vaadin.flow.component.orderedlayout.VerticalLayout Vertical} and {@link com.vaadin.flow.component.orderedlayout.HorizontalLayout Horizontal} Layout
  * For more Details:
  * @see <a href="https://vaadin.com/components">Components</a>
+ * @author rbu
  */
 public class LayoutUtil {
 
@@ -135,7 +136,7 @@ public class LayoutUtil {
         return addRadioButtons(title, setter, value, choices, false, layout);
     }
     public static <T extends IFilterElement> RadioButtonGroup<T>  addRadioButtons(String title, Consumer<T> setter, T[] choices, boolean vertical, ILayout layout){
-        return addRadioButtons(title, setter, null, choices, false, layout);
+        return addRadioButtons(title, setter, null, choices, vertical, layout);
     }
     public static <T extends IFilterElement> RadioButtonGroup<T>  addRadioButtons(String title, Consumer<T> setter, T value, T[] choices, boolean vertical, ILayout layout){
         final RadioButtonGroup<T> radioGroup = new RadioButtonGroup<>();

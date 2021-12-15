@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 /**
  * Part of the {@link MovieEditorPanel} which allows us to add and Remove {@link Genre genres}
+ * @author rbu
  */
 public class MovieGenrePanel extends VLayout{
 

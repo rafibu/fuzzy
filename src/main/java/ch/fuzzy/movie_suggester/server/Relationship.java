@@ -2,6 +2,7 @@ package ch.fuzzy.movie_suggester.server;
 
 /**
  * Represents the relationship between the people watching
+ * @author rbu
  */
 public enum Relationship implements IFilterElement {
     FAMILY("Family"),

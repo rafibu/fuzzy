@@ -4,6 +4,7 @@ import ch.fuzzy.movie_suggester.util.ObjUtil;
 
 /**
  * Represents a result of a {@link Movie movie} with a fit after a certain {@link MovieFilter filter} has been used
+ * @author rbu
  */
 public class MovieResult implements Comparable<MovieResult>{
 

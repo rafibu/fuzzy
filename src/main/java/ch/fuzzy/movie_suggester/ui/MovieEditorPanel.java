@@ -23,6 +23,7 @@ import java.io.IOException;
 
 /**
  * Panel for a Single {@link Movie} instance. Here all Data of a {@link Movie} can be changed
+ * @author rbu
  */
 @SpringComponent
 @UIScope

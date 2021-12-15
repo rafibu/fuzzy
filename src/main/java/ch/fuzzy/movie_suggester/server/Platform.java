@@ -2,6 +2,7 @@ package ch.fuzzy.movie_suggester.server;
 
 /**
  * Platform on which a certain {@link Movie} instance is available
+ * @author rbu
  */
 public enum Platform implements IFilterElement {
     NETFLIX("Netflix"),

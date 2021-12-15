@@ -2,6 +2,7 @@ package ch.fuzzy.movie_suggester.server;
 
 /**
  * Language a {@link Movie} can be watched in
+ * @author rbu
  */
 public enum Language implements IFilterElement {
     EN("English"),

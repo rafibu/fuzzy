@@ -4,6 +4,7 @@ import ch.fuzzy.movie_suggester.util.ObjUtil;
 
 /**
  * Filter Element for the Age Restriction a movie might have
+ * @author rbu
  */
 public enum AgeRestriction implements IFilterElement{
     NONE("None"),

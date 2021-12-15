@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Hibernate Class to load {@link Settings}s from Repository
  * There should always only be one {@link Settings} per Database
+ * @author rbu
  */
 public interface SettingsRepository extends JpaRepository<Settings, Long> {
 

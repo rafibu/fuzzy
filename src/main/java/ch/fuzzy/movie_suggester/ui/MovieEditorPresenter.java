@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 /**
  * shows all {@link Movie}s and allows us to modify them
  * Also allows us to change the global {@link Settings}
+ * @author rbu
  */
 @Route("movie_editor")
 public class MovieEditorPresenter extends VLayout {

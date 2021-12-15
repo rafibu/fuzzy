@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 /**
- * Hibernate Class to load {@link Movie}s from Repository
+ * Hibernate Class to load {@link Movie movies} from Repository
+ * @author rbu
  */
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 

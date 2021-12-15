@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 /**
  * The MovieFiller can be used to edit a new {@link Movie}, it'll fill all data according to a filter
+ * @author rbu
  */
 public class MovieFiller {
 

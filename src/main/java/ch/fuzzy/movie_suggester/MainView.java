@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 
 /**
  * First view a user sees
+ * @author rbu
  */
 @Route
 @CssImport("./themes/page_style.css")

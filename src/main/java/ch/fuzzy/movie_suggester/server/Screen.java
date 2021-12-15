@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Screen Size (Phone, TV, Cinema, IMAX)
+ * @author rbu
  */
 public enum Screen implements IFilterElement {
     PHONE("Phone"),
