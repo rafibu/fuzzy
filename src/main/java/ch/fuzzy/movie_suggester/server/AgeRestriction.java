@@ -2,6 +2,9 @@ package ch.fuzzy.movie_suggester.server;
 
 import ch.fuzzy.movie_suggester.util.ObjUtil;
 
+/**
+ * Filter Element for the Age Restriction a movie might have
+ */
 public enum AgeRestriction implements IFilterElement{
     NONE("None"),
     SIX("6+", NONE),
@@ -19,6 +22,8 @@ public enum AgeRestriction implements IFilterElement{
 
     /**
      * Does not restrict itself or if restriction is null
+     * @param restriction the restriction to be tested
+     * @return true if this restricts restriction
      */
     public boolean restricts(AgeRestriction restriction){
         return !ObjUtil.isContained(restriction, this, null) && !ObjUtil.isContained(restriction, included);

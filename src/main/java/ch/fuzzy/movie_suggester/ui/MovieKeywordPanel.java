@@ -1,5 +1,6 @@
 package ch.fuzzy.movie_suggester.ui;
 
+import ch.fuzzy.movie_suggester.server.Genre;
 import ch.fuzzy.movie_suggester.server.Keyword;
 import ch.fuzzy.movie_suggester.server.Movie;
 import com.vaadin.flow.component.button.Button;
@@ -8,6 +9,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import java.util.Arrays;
 
 //TODO: rbu 04.11.2021, maybe create abstract Superclass with GenrePanel
+/**
+ * Part of the {@link MovieEditorPanel} which allows us to add and Remove {@link Keyword keywords}
+ */
 public class MovieKeywordPanel extends VLayout{
 
     private final Movie movie;

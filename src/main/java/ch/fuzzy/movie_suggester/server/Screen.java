@@ -3,7 +3,7 @@ package ch.fuzzy.movie_suggester.server;
 import java.util.Arrays;
 
 /**
- * Screen Size (Phone, TV, Cinema)
+ * Screen Size (Phone, TV, Cinema, IMAX)
  */
 public enum Screen implements IFilterElement {
     PHONE("Phone"),

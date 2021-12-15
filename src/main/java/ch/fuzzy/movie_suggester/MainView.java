@@ -9,6 +9,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+/**
+ * First view a user sees
+ */
 @Route
 @CssImport("./themes/page_style.css")
 public class MainView extends VerticalLayout {

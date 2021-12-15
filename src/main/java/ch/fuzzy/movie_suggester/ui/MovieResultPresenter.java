@@ -13,6 +13,9 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
+/**
+ * The Result Panel a user sees after filling out the Bot
+ */
 @Route("movie_results")
 public class MovieResultPresenter extends VLayout{
 

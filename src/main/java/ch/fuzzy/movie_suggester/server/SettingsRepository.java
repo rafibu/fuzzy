@@ -4,6 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/**
+ * Hibernate Class to load {@link Settings}s from Repository
+ * There should always only be one {@link Settings} per Database
+ */
 public interface SettingsRepository extends JpaRepository<Settings, Long> {
 
     @Override

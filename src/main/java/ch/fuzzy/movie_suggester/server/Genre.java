@@ -7,7 +7,8 @@ import javax.persistence.*;
 
 
 /**
- * Genre and how much a movie overlaps with it
+ * Genre and how much a {@link Movie} overlaps with it
+ * Belongs always to a {@link Movie} instance
  */
 @Entity
 public class Genre {

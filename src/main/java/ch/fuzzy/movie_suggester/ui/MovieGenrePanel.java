@@ -7,6 +7,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 
 import java.util.Arrays;
 
+/**
+ * Part of the {@link MovieEditorPanel} which allows us to add and Remove {@link Genre genres}
+ */
 public class MovieGenrePanel extends VLayout{
 
     private final Movie movie;

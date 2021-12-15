@@ -2,6 +2,9 @@ package ch.fuzzy.movie_suggester.server;
 
 import ch.fuzzy.movie_suggester.util.ObjUtil;
 
+/**
+ * Represents a result of a {@link Movie movie} with a fit after a certain {@link MovieFilter filter} has been used
+ */
 public class MovieResult implements Comparable<MovieResult>{
 
     private final Movie movie;

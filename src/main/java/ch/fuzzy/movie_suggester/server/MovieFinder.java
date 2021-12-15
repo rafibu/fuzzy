@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 import static ch.fuzzy.movie_suggester.server.MovieFilter.Weight;
 import static ch.fuzzy.movie_suggester.server.Settings.Distance;
 
+/**
+ * The MovieFinder calculates how well a {@link Movie} fits for a given {@link MovieFilter}
+ */
 public class MovieFinder {
 
     private static final Logger log = LoggerFactory.getLogger(MovieFinder.class);

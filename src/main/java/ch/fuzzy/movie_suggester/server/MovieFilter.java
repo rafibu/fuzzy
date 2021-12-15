@@ -3,6 +3,9 @@ package ch.fuzzy.movie_suggester.server;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Represents a Filter which can be used to find matching {@link Movie} objects
+ */
 public class MovieFilter {
 
     private Collection<Genre.GenreType> genres;
@@ -104,19 +107,9 @@ public class MovieFilter {
     public void setScreenWeight(Weight weight) {this.screenWeight = weight;}
     public Weight getScreenWeight() {return screenWeight;}
 
-    public boolean hasValues() {
-        return getGenres().size() > 0 ||
-                getLanguage() != null ||
-                getNumberWatchers() != null ||
-                getPlatforms().size() > 0 ||
-                getEmotionality() != null ||
-                getInvested() != null ||
-                getRelationship() != null ||
-                getScreen() != null ||
-                getPositiveKeywords() != null ||
-                getNegativeKeywords() != null;
-    }
-
+    /**
+     * Weights used for fuzzy filter variables
+     */
     public enum Weight implements IFilterElement {
         DNEGATIVE("--", 0.25),
         NEGATIVE("-", 0.5),
@@ -134,6 +127,9 @@ public class MovieFilter {
 
         @Override public String getName() {return name;}
 
+        /**
+         * convenience function to get the factor from a given {@link Weight weight} or 1 if weight is null
+         */
         public static double getFactor(Weight weight) {return weight != null ? weight.factor : 1;}
     }
 }

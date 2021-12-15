@@ -6,10 +6,17 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * The MovieFiller can be used to edit a new {@link Movie}, it'll fill all data according to a filter
+ */
 public class MovieFiller {
 
     private MovieFiller(){ /*should not be initialized*/ }
 
+    /**
+     * Fills the {@link Movie movie} in such a way that the given {@link MovieFilter filter} will result in a 100% overlap
+     * !!! Caution: this method overrides MOST data saved on the {@link Movie movie} !!!
+     */
     public static void fillMovie(Movie movie, MovieFilter filter){
         movie.setAgeRestriction(filter.getAgeRestriction() != null ? filter.getAgeRestriction() : AgeRestriction.NONE);
         set(movie::setPlatforms, filter.getPlatforms());

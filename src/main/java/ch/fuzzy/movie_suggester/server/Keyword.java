@@ -3,6 +3,9 @@ package ch.fuzzy.movie_suggester.server;
 import javax.persistence.*;
 import java.util.Set;
 
+/**
+ * Keywords which a {@link Movie} describe including how well they fit the movie
+ */
 @Entity
 public class Keyword {
 
@@ -31,6 +34,9 @@ public class Keyword {
     //Used by framework
     protected Keyword() {movie = null;keyword = null;}
 
+    /**
+     * finds the value in the Set keywords
+     */
     public static Keyword findKeyword(KeywordValue value, Set<Keyword> keywords) {
         for(Keyword k: keywords){ if(k.keyword == value) return k; }
         return null;

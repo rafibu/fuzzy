@@ -1,5 +1,8 @@
 package ch.fuzzy.movie_suggester.ui;
 
+/**
+ * Interface for Base Layouts
+ */
 public interface ILayout {
 
     /**

@@ -24,6 +24,9 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * Vertical Layout which implements our own add Functions
+ */
 @CssImport("./themes/page_style.css")
 @CssImport(value = "./themes/filter_elements.css", themeFor = "vaadin-*")
 public class VLayout extends VerticalLayout implements ILayout{

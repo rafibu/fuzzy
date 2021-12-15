@@ -8,10 +8,13 @@ import com.vaadin.flow.component.button.Button;
 
 import java.util.function.Consumer;
 
+/**
+ * The Bot which a user needs to create a {@link MovieFilter}
+ */
 public class MovieFilterBotPresenter extends VLayout{
 
     protected final MovieFilter filter; //NOTE: rbu 16.11.2021, make static to not lose it after refresh/navigation if wanted
-    private final int NUMBER_OF_QUESTIONS = 10;
+    private final int NUMBER_OF_QUESTIONS = 10; //TODO: rbu 15.12.2021 Maybe just Navigate directly in lastAnswer instead of keeping Track like this
     private int currentQuestion;
     private VLayout currentInput;
     private Button send;
@@ -115,7 +118,7 @@ public class MovieFilterBotPresenter extends VLayout{
         UI.getCurrent().navigate(MovieResultPresenter.class);
     }
 
-    //TODO: 17.11.2021, create Enum encapsulating these Three properties getLastAnswer, getNextQuestion, addInput
+    //TODO: 17.11.2021, create Enum encapsulating these four properties getLastAnswer, getNextQuestion, addInput, getWeight
     private String getLastAnswer(boolean dontCare) {
         if(dontCare){ return "I don't care"; }
         switch (currentQuestion){

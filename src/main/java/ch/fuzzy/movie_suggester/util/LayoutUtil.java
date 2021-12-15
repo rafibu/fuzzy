@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Combines all implementations of inputfields for the Vertical and Horizontal Layout
+ * Combines all implementations of inputfields for the {@link com.vaadin.flow.component.orderedlayout.VerticalLayout Vertical} and {@link com.vaadin.flow.component.orderedlayout.HorizontalLayout Horizontal} Layout
  * For more Details:
  * @see <a href="https://vaadin.com/components">Components</a>
  */
@@ -341,6 +341,9 @@ public class LayoutUtil {
         return slider;
     }
 
+    /**
+     * Used to get a Simple Slider for Number
+     */
     @Tag("paper-slider")
     @NpmPackage(value = "@polymer/paper-slider", version = "3.0.1")
     @JsModule("@polymer/paper-slider/paper-slider.js")

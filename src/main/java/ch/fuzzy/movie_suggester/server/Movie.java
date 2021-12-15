@@ -14,6 +14,9 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a Movie Instance with all important data
+ */
 @Entity
 public class Movie {
 
@@ -24,6 +27,9 @@ public class Movie {
 	private String title;
 	private String description;
 
+	/**
+	 * Fallback Image for Movie Picture
+	 */
 	private static final File fallback = new File("frontend/pictures/fallback_movie.png");
 
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -38,6 +44,10 @@ public class Movie {
 	@Column(name="language")
 	private Set<Language> languages = new HashSet<>();
 
+	/*
+	 * relationship fits, how well does a movie Fit a certain relationship
+	 * TODO 15.12.2021 could be done with a direct mapping
+	 */
 	@Column(name = "FAMILY_FIT")
 	private Integer familyFit;
 	@Column(name = "FRIENDS_FIT")
@@ -45,6 +55,10 @@ public class Movie {
 	@Column(name = "ROMANTIC_FIT")
 	private Integer romanticFit;
 
+	/*
+	 * relationship fits, how well does a movie Fit a certain concentration level
+	 * TODO 15.12.2021 could be done with a direct mapping
+	 */
 	@Column(name = "LOW_CONCENTRATION_FIT")
 	private Integer lowConcentrationFit;
 	@Column(name = "MODERATE_CONCENTRATION_FIT")
@@ -56,6 +70,9 @@ public class Movie {
 	@Column(name = "AGE_RESTRICTION")
 	private AgeRestriction ageRestriction;
 
+	/**
+	 * used for positive as well as negative Keyword search
+	 */
 	@OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, mappedBy = "movie",fetch = FetchType.EAGER)
 	private Set<Keyword> keywords = new HashSet<>();
 
@@ -66,11 +83,20 @@ public class Movie {
 	@Basic(fetch = FetchType.LAZY)
 	private byte[] moviePicture;
 
+	/**
+	 * best screen to watch the movie on
+	 */
 	@Enumerated(EnumType.STRING)
 	private Screen optimalScreen;
 
+	/**
+	 * How invested someone should be in the movie to enjoy it the most
+	 */
 	private Integer optimalInvestment;
 
+	/**
+	 * how emotional the movie will get
+	 */
 	private Integer optimalEmotionality;
 
 	protected Movie() {}
@@ -161,6 +187,10 @@ public class Movie {
 	private Path getFallbackPath() {return fallback.toPath();}
 
 	//NOTE: rbu 24.11.2021, maybe move method to util class?
+
+	/**
+	 * generates an {@link Image image} from the movies saved picture
+	 */
 	public static Image generateImage(Movie movie, boolean includeFallback) {
 		StreamResource sr = new StreamResource("movie", () -> {
 			try {
@@ -179,20 +209,27 @@ public class Movie {
 	@Override public String toString() { return String.format("Movie[id=%d, title='%s']", id, title); }
 
 	public static String showGenres(Movie movie) {
+		if(movie == null) return "No Movie given";
 		StringBuilder sb = new StringBuilder();
 		movie.genres.stream().forEach(g -> sb.append(g.getName()).append(", "));
 		return sb.length() > 0 ? sb.substring(0, sb.length()-2): "";
 	}
 
-    public int calculateGenreFit(Genre.GenreType genre) {
+	/**
+	 * Calculates how well the given {@link Genre} fits this movie instance
+	 */
+	public int calculateGenreFit(Genre.GenreType genre) {
 		for(Genre g: genres){
 			if(g.getType() == genre){
 				return g.getFit();
 			}
 		}
 		return 0;
-    }
+	}
 
+	/**
+	 * Convenience method to find a given {@link MovieFinder.Concentration}
+	 */
 	public int getConcentrationFit(MovieFinder.Concentration concentration) {
 		switch (concentration){
 			case LOW: return getLowConcentrationFit() != null ? getLowConcentrationFit() : 0;
@@ -210,6 +247,9 @@ public class Movie {
 		return ObjUtil.isContained(k, getKeywords().stream().map(Keyword::getKeyword).toArray(Keyword.KeywordValue[]::new));
 	}
 
+	/**
+	 * Convenience function to directly get the Fit for a given {@link Relationship}
+	 */
 	public int getRelationshipFit(Relationship relationship) {
 		switch(relationship){
 			case FAMILY:	return intFit(getFamilyFit());
@@ -219,7 +259,12 @@ public class Movie {
 		}
 	}
 
+	/**
+	 * replaces an {@link Integer} with a primitive int, replaces null with 0
+	 */
 	private static int intFit(Integer integer){
 		return integer != null ? integer : 0;
 	}
 }
+
+

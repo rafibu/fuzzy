@@ -2,6 +2,9 @@ package ch.fuzzy.movie_suggester.server;
 
 import javax.persistence.*;
 
+/**
+ * Global settings of the application
+ */
 @Entity
 public class Settings {
 
@@ -9,12 +12,15 @@ public class Settings {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    /**
+     * describes the Distance Function used for the Fit calculations
+     */
     @Column(name = "distancefunction")
     @Enumerated(EnumType.STRING)
     private Distance distanceFunction;
 
     /**
-     * This flag indicates whether we want the relationship and number of watchers to be calculated together or alone
+     * This flag indicates whether we want the relationship and number of watchers to be calculated together (in the concentration Fit) or separate
      */
     private boolean isConcentrationFit;
 
@@ -27,6 +33,10 @@ public class Settings {
     public Long getId() {return id;}
     protected void setId(Long id) {this.id = id;}
 
+    /**
+     * Distance Functions
+     * This enum allows us to change them dynamically for testing out which one feels the most natural
+     */
     public enum Distance implements IFilterElement{
         L2("L2"),
         L1("L1"),

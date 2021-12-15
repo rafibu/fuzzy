@@ -13,6 +13,10 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.util.StringUtils;
 
+/**
+ * shows all {@link Movie}s and allows us to modify them
+ * Also allows us to change the global {@link Settings}
+ */
 @Route("movie_editor")
 public class MovieEditorPresenter extends VLayout {
 

@@ -8,6 +8,10 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 
+/**
+ * Creates a Bot to Edit a {@link Movie movie}.
+ * Helps to fill fits more efficiently and accurately
+ */
 @Route("edit_bot")
 public class MovieEditBotPresenter extends MovieFilterBotPresenter{
 
