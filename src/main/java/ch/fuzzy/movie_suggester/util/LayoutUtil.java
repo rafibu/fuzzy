@@ -3,7 +3,6 @@ package ch.fuzzy.movie_suggester.util;
 import ch.fuzzy.movie_suggester.server.IFilterElement;
 import ch.fuzzy.movie_suggester.ui.ILayout;
 import com.vaadin.flow.component.AbstractSinglePropertyField;
-import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.checkbox.Checkbox;

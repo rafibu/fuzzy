@@ -1,6 +1,5 @@
 package ch.fuzzy.movie_suggester.util;
 
-import ch.fuzzy.movie_suggester.server.Genre;
 import ch.fuzzy.movie_suggester.server.IFilterElement;
 
 import java.util.Collection;

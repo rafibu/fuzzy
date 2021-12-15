@@ -6,7 +6,6 @@ import ch.fuzzy.movie_suggester.server.MovieRepository;
 import ch.fuzzy.movie_suggester.server.SettingsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

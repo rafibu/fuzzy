@@ -95,7 +95,7 @@ public class MovieFilterBotPresenter extends VLayout{
         remove(currentInput);
         createAnswer(getLastAnswer(dontCare));
         currentQuestion++;
-        currentQuestion = skip(currentQuestion, 2, filter.getNumberWatchers() == null || filter.getNumberWatchers() == 1);
+        currentQuestion = skip(currentQuestion, 2, filter.getNumberWatchers() == 1);
         currentQuestion = skip(currentQuestion, 7, isInvestment);
         createQuestion(getNextQuestion());
         currentInput = createInput();

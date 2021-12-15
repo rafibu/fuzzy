@@ -92,17 +92,18 @@ public class MovieFinder {
     }
 
     private Integer concentrationFit(Movie movie, Integer numberWatchers, Relationship relationship, Weight numberWatchersWeight, Weight relationshipWeight) {
-        Map<Concentration, Integer> concentrationMap = new HashMap<>();
-        if(numberWatchers != null) {
+        if (numberWatchers != null) {
             Map<NumberPeople, Integer> numberPeopleMap = new HashMap<>();
             Arrays.stream(NumberPeople.values()).forEach(v -> numberPeopleMap.put(v, calculatePeopleFit(v, numberWatchers)));
-            if(relationship != null) {
+            if (relationship != null) {
+                Map<Concentration, Integer> concentrationMap = new HashMap<>();
                 Arrays.stream(Concentration.values()).forEach(v -> concentrationMap.put(v, calculateConcentrationFit(v, numberWatchers, relationship, numberPeopleMap)));
-                return (int)(factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * bestFit(movie, concentrationMap));
+                return (int) (factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * bestFit(movie, concentrationMap));
             }
-            return (int)(factorFor(numberWatchersWeight) * bestFit(movie, peopleToConcentrationMap(numberPeopleMap)));
+            return (int) (factorFor(numberWatchersWeight) * bestFit(movie, peopleToConcentrationMap(numberPeopleMap)));
         }
-        return (int)(factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * movie.getModerateConcentrationFit()); //If we don't know how many people there are we just take one of the fits
+        //this case is when we have no answer for the number of people but one for the relationship
+        return relationshipFit(movie, relationship, relationshipWeight);
     }
 
     int calculatePeopleFit(NumberPeople membership, int numberWatchers) {
