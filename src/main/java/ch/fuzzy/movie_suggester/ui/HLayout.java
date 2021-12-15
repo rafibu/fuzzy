@@ -31,6 +31,7 @@ public class HLayout extends HorizontalLayout implements ILayout{
     private final ILayout parent;
 
     public HLayout(ILayout parent){
+        super();
         this.parent = parent;
     }
 

@@ -30,10 +30,14 @@ public class VLayout extends VerticalLayout implements ILayout{
     private final ILayout parent;
 
     public VLayout(ILayout parent){
+        super();
         this.parent = parent;
     }
 
-    public VLayout() {parent = null;}
+    public VLayout() {
+        super();
+        parent = null;
+    }
 
     protected Span addTitle(String text){
         return LayoutUtil.addTitle(text, this);
