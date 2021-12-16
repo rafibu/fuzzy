@@ -192,7 +192,7 @@ public class MovieFilterBotPresenter extends VLayout{
 
     private void addWeightChooser(HLayout layout, Consumer<MovieFilter.Weight> setter) {
         layout.addText("Importance of this Question: ");
-        layout.addRadioButtons("", setter, MovieFilter.Weight.values(), true);
+        layout.addRadioButtons("", setter, MovieFilter.Weight.values());
     }
 
     @Override
