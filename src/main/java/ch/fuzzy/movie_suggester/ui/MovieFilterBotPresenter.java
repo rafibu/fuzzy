@@ -119,7 +119,7 @@ public class MovieFilterBotPresenter extends VLayout{
         UI.getCurrent().navigate(MovieResultPresenter.class);
     }
 
-    //TODO: 17.11.2021, create Enum encapsulating these four properties getLastAnswer, getNextQuestion, addInput, getWeight
+    //TODO: 17.11.2021, create Enum encapsulating these four properties getLastAnswer, getNextQuestion, addInput, addWeight
     private String getLastAnswer(boolean dontCare) {
         if(dontCare){ return "I don't care"; }
         switch (currentQuestion){

@@ -2,10 +2,7 @@ package ch.fuzzy.movie_suggester.util;
 
 import ch.fuzzy.movie_suggester.server.IFilterElement;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +39,7 @@ public class ObjUtil {
     public static <T> boolean isContained(T obj, T... list) {
         if(list != null) {
             for (T ele : list) {
-                if(obj == ele) return true;
+                if(equals(obj, ele)) return true;
             }
         }
         return false;
@@ -66,6 +63,9 @@ public class ObjUtil {
         return res;
     }
 
+    /**
+     * Elements are the same if either both are null or if they are equal by the {@link Object#equals(Object)} function
+     */
     public static <T> boolean equals(T a, T b){
         if(a == null){
             return b == null;
@@ -75,15 +75,47 @@ public class ObjUtil {
 
     /**
      * Checks if two arrays have the same elements
-     * !!! currently not working if an element is contained more than once !!!
      */
-    //FIXME: rbu 14.11.2021, for Elements where multiple values are present they might slip through
     public static <T> boolean sameElements(T[] array1, T[] array2) {
         if(array1.length != array2.length){ return false;}
-        for(T element: array1){
-            if(!isContained(element, array2)){ return false; }
+        return Arrays.stream(array1).distinct().allMatch(e -> count(e, array1) == count(e, array2));
+    }
+
+    /**
+     * Checks if two Collections have the same elements
+     * TODO: rbu 16.12.2021, currently checks objects which are present multiple times more then once, maybe change that
+     */
+    public static <T> boolean sameElements(Iterable<T> list1, Iterable<T> list2) {
+        if(list1 == null){ return list2 == null; }
+        Iterator<T> it1 = list1.iterator();
+        Iterator<T> it2 = list1.iterator();
+        if(!it1.hasNext()){
+            //Means list 1 is empty, then they have the same Elements if list2 is empty
+            return !it2.hasNext();
+        }
+        while(it1.hasNext()){
+            T e = it1.next();
+            if(count(e, list1) != count(e, list2)) return false;
         }
         return true;
+    }
+
+    /**
+     * counts how often an Element is present in a collection
+     */
+    public static <T> int count(T element, Iterable<T> collection){
+        int count = 0;
+        for(T e : collection){
+            if(equals(e, element)) count++;
+        }
+        return count;
+    }
+
+    /**
+     * counts how often an element if present in an Array
+     */
+    private static <T> int count(T element, T[] array){
+        return (int) Arrays.stream(array).filter(e -> equals(e, element)).count();
     }
 
     /**

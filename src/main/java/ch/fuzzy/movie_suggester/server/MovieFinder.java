@@ -119,7 +119,7 @@ public class MovieFinder {
             if (relationship != null) {
                 Map<Concentration, Integer> concentrationMap = new HashMap<>();
                 Arrays.stream(Concentration.values()).forEach(v -> concentrationMap.put(v, calculateConcentrationFit(v, numberWatchers, relationship, numberPeopleMap)));
-                return (int) (factorFor(numberWatchersWeight) * factorFor(relationshipWeight) * bestFit(movie, concentrationMap));
+                return (int) (factorFor(numberWatchersWeight, relationshipWeight) * bestFit(movie, concentrationMap));
             }
             return (int) (factorFor(numberWatchersWeight) * bestFit(movie, peopleToConcentrationMap(numberPeopleMap)));
         }
@@ -149,9 +149,9 @@ public class MovieFinder {
      */
     private double factorFor(Weight... weights){
         if(weights.length == 0) return 1;
-        double res = 0;
+        double res = 1;
         for(Weight w: weights){
-            res += Weight.getFactor(w);
+            res *= Weight.getFactor(w);
         }
         return res/weights.length;
     }
