@@ -88,6 +88,7 @@ public class MovieFilterBotPresenter extends VLayout{
         addWeight(secondLayout);
         resLayout.add(layout, secondLayout);
         add(resLayout);
+        UI.getCurrent().getPage().executeJs("window.scrollTo(0,document.body.scrollHeight);");
         return resLayout;
     }
 

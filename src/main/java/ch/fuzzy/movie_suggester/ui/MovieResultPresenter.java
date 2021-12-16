@@ -23,18 +23,12 @@ public class MovieResultPresenter extends VLayout{
     private static MovieFilter lastFilter;
 
     public MovieResultPresenter(){
+        UI.getCurrent().getPage().executeJs("window.scrollTo(0,0);");
         MovieFilter filter = ComponentUtil.getData(UI.getCurrent(), MovieFilter.class);
         if(filter != null) lastFilter = filter;
         List<MovieResult> movies = MovieFinder.get().findMovies(lastFilter);
         if(movies.size() > 0) {
             add(resultsLayout(movies));
-            //Grid for testing purposes -> shows more information
-//        final Grid<MovieResult> grid = new Grid<>(MovieResult.class);
-//        grid.setHeight("300px");
-//        grid.setColumns("movie.id", "movie.title", "movie.description", "movie.genres", "movie.platforms", "movie.languages", "fit");
-//        grid.getColumnByKey("movie.id").setWidth("50px").setFlexGrow(0);
-//        grid.setItems(movies);
-//        add(grid);
         } else {
             addText("I'm Sorry, we don't have any Movie matching your description");
         }
