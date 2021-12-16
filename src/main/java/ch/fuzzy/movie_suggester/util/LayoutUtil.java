@@ -188,6 +188,7 @@ public class LayoutUtil {
     }
     public static NumberField addNumberField(String title, Consumer<Double> setter, Double value, boolean hasControls, Double min, Double max, Double step, ILayout layout){
         final NumberField numberField = new NumberField(title);
+        setter.accept(value); //setter should have same state as NumberField
         numberField.setHasControls(hasControls);
         if(value != null) numberField.setValue(value);
         if(min != null) numberField.setMin(min);
@@ -219,6 +220,7 @@ public class LayoutUtil {
     public static IntegerField addIntegerField(String title, Consumer<Integer> setter, Integer value, boolean hasControls, Integer min, Integer max, Integer step, ILayout layout){
         final IntegerField numberField = new IntegerField(title);
         if(value != null) numberField.setValue(value);
+        setter.accept(value); //setter should have the same state as the IntegerField
         numberField.setHasControls(hasControls);
         if(min != null) numberField.setMin(min);
         if(max != null) numberField.setMax(max);
