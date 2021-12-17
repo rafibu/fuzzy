@@ -17,9 +17,9 @@ import com.vaadin.flow.router.Route;
 @CssImport("./themes/page_style.css")
 public class MainView extends VerticalLayout {
 	public MainView(SettingsRepository settingsRepo) {
-		Button movieEditBtn = new Button("Edit Movies");
-		movieEditBtn.addClickListener(e -> UI.getCurrent().navigate(MovieEditorPresenter.class));
-		add(movieEditBtn);
+//		Button movieEditBtn = new Button("Edit Movies");
+//		movieEditBtn.addClickListener(e -> UI.getCurrent().navigate(MovieEditorPresenter.class));
+//		add(movieEditBtn);
 		add(new MovieFilterBotPresenter(settingsRepo));
 	}
 }
